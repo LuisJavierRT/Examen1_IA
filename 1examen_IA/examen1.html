@@ -7,7 +7,7 @@
 
     <style type="text/css">
         #mynetwork {
-            width: 800px;
+            width: 1000px;
             height: 500px;
             border: 1px solid lightgray;
         }
@@ -18,8 +18,12 @@
     <button onclick="deleteNode()">Delete Node</button>
     <button onclick="setInitialState()">Set Inital State</button>
     <button onclick="setFinalState()">Set Final State</button>
+    <button onclick="clearAllStates()">Clear All State</button>
     <button onclick="saveGraphJSON()">Save Graph</button>
     <input type="file" id="files" name="files[]" multiple />
+    <button onclick="callDFS()">DFS</button>
+    <input id="limit" type="number" placeholder="Limit"/>
+    <button onclick="callDLS()">DLS</button>
     <script src="logic.js" type="text/javascript"></script>
 </body>
 
