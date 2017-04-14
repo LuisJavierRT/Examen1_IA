@@ -130,7 +130,15 @@ var clearAllStates = function() {
     for(var i=0; i<logicNetwork.length; i++) {
         logicNetwork[i].initial = false;
         logicNetwork[i].final = false;
-        data.nodes.update({id: i+1, initial: false, final: false, color:"#99ccff"});
+        data.nodes.update({id: i+1, visited: false, initial: false, final: false, color:"#99ccff"});
+    }
+    clearAllVisites();
+}
+
+var clearAllVisites = function() {
+    for(var i=0; i<logicNetwork.length; i++) {
+        logicNetwork[i].visited = false;
+        data.nodes.update({id: i+1, visited: false});
     }
 }
 
@@ -221,7 +229,7 @@ var DLS = function(graph, node1, goal, limit) {
     var depth_stack = [];
     var node;
     var depth;
-    var succes = "Fracaso";
+    //var succes = "Fracaso";
     stack.push(node1);
     depth_stack.push(0);
     while(stack.length > 0) {
@@ -230,19 +238,75 @@ var DLS = function(graph, node1, goal, limit) {
         console.log("->" + node.name);
         console.log("Depth: " + depth);
         if(node.id == goal.id){
-            succes = "Exito";
-            break;
+            //succes = "Exito";
+            //break;
+            return true;
         }
         if(depth < limit) {
             if(node.visited == false) {
                 for(var i=graph.length-1; i>0; i--) {
-                    if(getEdge(node, graph[i]))
+                    if(getEdge(node, graph[i])){
                         stack.push(graph[i]);
                         depth_stack.push(depth+1);
+                    }
                 }
             }
             node.visited = true;
         }
+    }
+    //console.log(succes);
+    return false;
+};
+
+var BFS = function(graph, node1, goal) {
+    var queue = [];
+    var node;
+    var succes = "Fracaso";
+    queue.push(node1);
+    while(queue.length > 0) {
+        node = queue.shift();
+        console.log("->" + node.name);
+        if(node.id == goal.id){
+            succes = "Exito";
+            break;
+        }
+        if(node.visited == false) {
+            for(var i=graph.length-1; i>0; i--) {
+                if(getEdge(node, graph[i]))
+                    queue.push(graph[i]);
+            }
+        }
+        node.visited = true;
+    }
+    console.log(succes);
+};
+
+var UCS = function(graph, node1, goal) {
+    var queue = [];
+    var node;
+    var cost;
+    var succes = "Fracaso";
+    queue.push(node1);
+    queue.push(0);
+    while(queue.length > 0) {
+        node = queue.shift();
+        cost = queue.shift();
+        console.log("->" + node.name);
+        console.log("Cost: " + cost);
+        if(node.id == goal.id){
+            succes = "Exito";
+            break;
+        }
+        if(node.visited == false) {
+            for(var i=graph.length-1; i>0; i--) {
+                cost = getEdgeCost(node, graph[i]);
+                if(cost){
+                    queue.push(graph[i]);
+                    queue.push(cost);
+                }
+            }
+        }
+        node.visited = true;
     }
     console.log(succes);
 };
@@ -256,8 +320,20 @@ var getEdge = function(node, to) {
     return false;
 };
 
+var getEdgeCost = function(node, to) {
+    var cost;
+    for(var i=0; i<node.edges.length; i++) {
+        if(node.edges[i].to == to.id){
+            cost = node.edges[i].weigth;
+            break;
+        }
+    }
+    return cost;
+};
+
 
 var callDFS = function(){
+    console.log("\n-------\n");
     var start;
     var goal;
     for(var i=0; i<logicNetwork.length; i++) {
@@ -272,6 +348,7 @@ var callDFS = function(){
 };
 
 var callDLS = function(){
+    console.log("\n-------\n");
     var start;
     var goal;
     for(var i=0; i<logicNetwork.length; i++) {
@@ -283,8 +360,75 @@ var callDLS = function(){
         }
     }
     var limit = document.getElementById("limit").value;
-    if(limit != undefined)
-        DLS(logicNetwork, start, goal, parseInt(limit));
+    if(limit != undefined){
+        if(DLS(logicNetwork, start, goal, parseInt(limit))){
+            console.log("Exito");
+        }
+        else{
+            console.log("Fracaso");
+        }
+    }
+        
+};
+
+var callIDS = function(){
+    console.log("\n-------\n");
+    var start;
+    var goal;
+    for(var i=0; i<logicNetwork.length; i++) {
+        if(logicNetwork[i].initial){
+            start = logicNetwork[i];
+        }
+        else if(logicNetwork[i].final){
+            goal = logicNetwork[i];
+        }
+    }
+    var depth = 1;
+    var status = false;
+    while(true){
+        console.log("\n\n Again");
+        status = DLS(logicNetwork, start, goal, depth);
+        clearAllVisites();
+        if(status || depth.length == logicNetwork.length)
+            break;
+        depth+=1;
+    }
+    if(status){
+        console.log("Exito");
+    }
+    else{
+        console.log("Fracaso");
+    }
+};
+
+var callBFS = function(){
+    console.log("\n-------\n");
+    var start;
+    var goal;
+    for(var i=0; i<logicNetwork.length; i++) {
+        if(logicNetwork[i].initial){
+            start = logicNetwork[i];
+        }
+        else if(logicNetwork[i].final){
+            goal = logicNetwork[i];
+        }
+    }
+    BFS(logicNetwork, start, goal);
+};
+
+var callUCS = function(){
+    console.log("\n-------\n");
+    var start;
+    var goal;
+    for(var i=0; i<logicNetwork.length; i++) {
+        if(logicNetwork[i].initial){
+            start = logicNetwork[i];
+        }
+        else if(logicNetwork[i].final){
+            goal = logicNetwork[i];
+        }
+    }
+    UCS(logicNetwork, start, goal);
 };
 
 document.getElementById('files').addEventListener('change', loadGraphJSON, false);
