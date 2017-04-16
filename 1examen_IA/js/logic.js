@@ -470,23 +470,22 @@ var SA = function(graph, node1, goal){
 
     while(temp > 1){                            // Loop until system has cooled
         var newSolution = currentSolution;
-        var pos1 = randomNumber(newSolution.length,0);
-        var pos2 = randomNumber(newSolution.length,0);
-        while(pos1 == pos2){
-            pos2 = randomNumber(newSolution.length,0);
-        }
-        var temp = newSolution[pos1];
-        newSolution[pos1] = newSolution[pos2];
-        newSolution[pos2] = temp;
 
+        var newSolution2 = createNeighbour(newSolution);
+        var bandera = checkRoad(newSolution2);
+
+        while(bandera == false){
+           newSolution2 = createNeighbour(newSolution);
+           bandera = checkRoad(newSolution2);
+        }
 
         var currentSolutionCost = getTotalCost(currentSolution);
-        var newSolutionCost = getTotalCost(newSolution);
+        var newSolutionCost = getTotalCost(newSolution2);
         var bestSolutionCost = getTotalCost(bestSolution);
 
         var rand =  Math.random() * (1.0 - 0.0) + 0.0;
         if(acceptanceProbability(currentSolutionCost,newSolutionCost, temp)){
-            currentSolution = newSolution;
+            currentSolution = newSolution2;
         }
         if(currentSolutionCost < bestSolutionCost){
             bestSolution = currentSolution;
@@ -502,6 +501,27 @@ var SA = function(graph, node1, goal){
         console.log(bestSolution[i].name);
     }
     
+}
+
+var createNeighbour = function(solution){
+    var pos1 = randomNumber(solution.length-1,1);
+    var pos2 = randomNumber(solution.length-1,1);
+    while(pos1 == pos2){
+        pos2 = randomNumber(solution.length-1,1);
+    }
+    var temp = solution[pos1];
+    solution[pos1] = solution[pos2];
+    solution[pos2] = temp;
+    return solution;
+}
+
+var checkRoad = function(solution){
+    for (var i = 1; i < solution.length; i++) {
+        if(getEdge(solution[i-1],solution[i]) == false){
+            return false;
+        }
+    }
+    return true
 }
 
 var acceptanceProbability = function(currentCost, newCost, temperature){
