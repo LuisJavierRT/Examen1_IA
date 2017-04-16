@@ -443,6 +443,99 @@ var UCS = function(graph, node1, goal) {
     console.log(succes);
 };
 
+var SA = function(graph, node1, goal){
+    var temp = 100000;
+    var coolingRate = 0.003;
+    var currentSolution = [];
+    currentSolution.push(node1);
+    currentSolution.push(node1);
+    while(currentSolution.length > 0){          // Find initial solution (random solution)
+        node = currentSolution.pop();
+        if(node.id == goal.id){
+            currentSolution.push(goal);
+            break;
+        }
+        if(node.visited == false){
+            for (var i = graph.length-1; i > 0; i--) {
+                cost = getEdgeCost(node, graph[i]);
+                if(cost){
+                    currentSolution.push(graph[i]);
+                }
+            }
+        }
+        node.visited = true;
+    }
+
+    var bestSolution = currentSolution;         // Asumme is the best solution
+
+    while(temp > 1){                            // Loop until system has cooled
+        var newSolution = currentSolution;
+        var pos1 = randomNumber(newSolution.length,0);
+        var pos2 = randomNumber(newSolution.length,0);
+        while(pos1 == pos2){
+            pos2 = randomNumber(newSolution.length,0);
+        }
+        var temp = newSolution[pos1];
+        newSolution[pos1] = newSolution[pos2];
+        newSolution[pos2] = temp;
+
+
+        var currentSolutionCost = getTotalCost(currentSolution);
+        var newSolutionCost = getTotalCost(newSolution);
+        var bestSolutionCost = getTotalCost(bestSolution);
+
+        var rand =  Math.random() * (1.0 - 0.0) + 0.0;
+        if(acceptanceProbability(currentSolutionCost,newSolutionCost, temp)){
+            currentSolution = newSolution;
+        }
+        if(currentSolutionCost < bestSolutionCost){
+            bestSolution = currentSolution;
+        }
+
+        temp *= 1 - coolingRate;
+
+    }
+
+    console.log("Best Solution Cost: " + bestSolutionCost);
+    console.log("Best Solution: " );
+    for (var i = 0; i < bestSolution.length; i++) {
+        console.log(bestSolution[i].name);
+    }
+    
+}
+
+var acceptanceProbability = function(currentCost, newCost, temperature){
+    if(newCost < currentCost){
+        return 1.0;
+    }
+    else{
+        return Math.exp((currentCost - newCost) / temperature);
+    }
+}
+
+
+var getTotalCost = function(solution){
+    var totalCost = 0;
+    for (var i = 0; i < solution.length; i++) {
+        var from = solution[i];
+        var to;
+        if (i+1 < solution.length){
+            to = solution[i+1];
+        }
+        else{
+            to = solution[0];
+        }
+
+        if (getEdgeCost(from,to)){
+            totalCost += getEdgeCost(from,to);
+        }
+        else{
+            totalCost += 0;
+        }
+    }
+    return totalCost;
+}
+
 var getEdge = function(node, to) {
     for(var i=0; i<node.edges.length; i++) {
         if(node.edges[i].to == to.id){
@@ -549,6 +642,20 @@ var callUCS = function(){
             for(var j=0; j<logicNetwork.length; j++) {
                 if(logicNetwork[j].final) {
                     UCS(logicNetwork, logicNetwork[i], logicNetwork[j]);
+                    clearAllVisites();
+                }
+            }
+        }
+    }
+};
+
+var callSA = function(){
+    console.log("\n-------\n");
+    for(var i=0; i<logicNetwork.length; i++) {
+        if(logicNetwork[i].initial) {
+            for(var j=0; j<logicNetwork.length; j++) {
+                if(logicNetwork[j].final) {
+                    SA(logicNetwork, logicNetwork[i], logicNetwork[j]);
                     clearAllVisites();
                 }
             }
