@@ -15501,7 +15501,7 @@ return /******/ (function(modules) { // webpackBootstrap
         width: 1,
         widthSelectionMultiplier: 2,
         hoverWidth: 1.5,
-        style: 'line',
+        style: 'arrow',
         color: {
           color:'#848484',
           highlight:'#848484',
