@@ -503,6 +503,49 @@ var SA = function(graph, node1, goal){
     }
 }
 
+var BIDI = function(graph, node1, goal) {
+    var queue1 = [];
+    var queue2 = [];
+    var caminoA = [];
+    var caminoB = [];
+    var nodeA;
+    var nodeB;
+    var conta = 0;
+    var succes = "Fracaso";
+    queue1.push(node1);
+    queue2.push(goal);
+    while(queue1.length > 0 && queue2.length > 0) {
+        if (queue1[0].id == queue2[0].id){
+            succes = "Exito";
+            break;
+        }
+        nodeA = queue1.shift();
+        nodeB = queue2.shift();
+        
+        caminoA.push(nodeA.name);
+        caminoB.unshift(nodeB.name);
+        if(nodeA.id == nodeB.id){
+            succes = "Exito";
+            break;
+        }
+        if(nodeA.visited == false && nodeB.visited == false) {
+            for(var i=graph.length-1; i>0; i--) {
+                if(getEdge(nodeA, graph[i]))
+                    queue1.push(graph[i]);
+                if(getEdge(nodeB, graph[i]))
+                    queue2.push(graph[i]);
+            }
+        }
+        nodeA.visited = true;
+        nodeB.visited = true;
+    }
+    caminoA = caminoA.concat(caminoB);
+    for (var i = 0; i<caminoA.length; i++){
+        console.log("->"+caminoA[i]);
+    }
+    console.log(succes);
+};
+
 function Fact(num)
 {
     if (num === 0)
@@ -718,6 +761,20 @@ var callSA = function(){
             for(var j=0; j<logicNetwork.length; j++) {
                 if(logicNetwork[j].final) {
                     SA(logicNetwork, logicNetwork[i], logicNetwork[j]);
+                    clearAllVisites();
+                }
+            }
+        }
+    }
+};
+
+var callBI = function(){
+     console.log("\n-------\n");
+    for(var i=0; i<logicNetwork.length; i++) {
+        if(logicNetwork[i].initial) {
+            for(var j=0; j<logicNetwork.length; j++) {
+                if(logicNetwork[j].final) {
+                    BIDI(logicNetwork, logicNetwork[i], logicNetwork[j]);
                     clearAllVisites();
                 }
             }
