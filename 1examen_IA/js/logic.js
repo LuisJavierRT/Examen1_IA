@@ -329,8 +329,8 @@ var updateLogicNetworkOnNew = function(nodes, edges) {
             id: i+1,
             name: nodes[i].label,
             visited: false,
-            final: false,
-            initial: false,
+            final: nodes[i].final,
+            initial: nodes[i].initial,
             edges: listaEdges
         };
         logicNetwork.push(node);
@@ -446,68 +446,72 @@ var UCS = function(graph, node1, goal) {
 var SA = function(graph, node1, goal){
     var temp = 100000;
     var coolingRate = 0.003;
-    var currentSolution = [];
-    currentSolution.push(node1);
-    currentSolution.push(node1);
-    while(currentSolution.length > 0){          // Find initial solution (random solution)
-        node = currentSolution.pop();
-        if(node.id == goal.id){
-            currentSolution.push(goal);
-            break;
-        }
-        if(node.visited == false){
-            for (var i = graph.length-1; i > 0; i--) {
-                cost = getEdgeCost(node, graph[i]);
-                if(cost){
-                    currentSolution.push(graph[i]);
-                }
-            }
-        }
-        node.visited = true;
-    }
-
+    var currentSolution = findRandomSolution(graph,node1,goal);
+    var bandera;
     var bestSolution = currentSolution;         // Asumme is the best solution
-
+    console.log(currentSolution);
     while(temp > 1){                            // Loop until system has cooled
         var newSolution = currentSolution;
 
-        var newSolution2 = createNeighbour(newSolution);
-        var bandera = checkRoad(newSolution2);
-
-        while(bandera == false){
-           newSolution2 = createNeighbour(newSolution);
-           bandera = checkRoad(newSolution2);
+        var newSolution = createNeighbour(newSolution);
+        bandera = checkRoad(newSolution);
+        var max = Fact(newSolution.length)/(2*(Fact(newSolution.length-2)));
+        var iterations = 0;
+        console.log(max);
+        while(bandera == false && max > iterations){
+           newSolution = createNeighbour(newSolution);
+           bandera = checkRoad(newSolution);
+           iterations += 1;
+           console.log("entro");
         }
-
         var currentSolutionCost = getTotalCost(currentSolution);
-        var newSolutionCost = getTotalCost(newSolution2);
-        var bestSolutionCost = getTotalCost(bestSolution);
-
-        var rand =  Math.random() * (1.0 - 0.0) + 0.0;
-        if(acceptanceProbability(currentSolutionCost,newSolutionCost, temp)){
-            currentSolution = newSolution2;
+        if(bandera == false){
+            console.log("Best Solution Cost1: " + currentSolutionCost);
+            console.log("Best Solution: ");
+            for (var i = 0; i < currentSolution.length; i++) {
+                console.log(currentSolution[i].name);
+            }
+            break;
         }
-        if(currentSolutionCost < bestSolutionCost){
-            bestSolution = currentSolution;
+        else{
+
+            var newSolutionCost = getTotalCost(newSolution);
+            var bestSolutionCost = getTotalCost(bestSolution);
+
+            var rand =  Math.random() * (1.0 - 0.0) + 0.0;
+            if(acceptanceProbability(currentSolutionCost,newSolutionCost, temp) < rand){
+                currentSolution = newSolution;
+            }
+            if(currentSolutionCost < bestSolutionCost){
+                bestSolution = currentSolution;
+            }
         }
 
         temp *= 1 - coolingRate;
 
     }
-
-    console.log("Best Solution Cost: " + bestSolutionCost);
-    console.log("Best Solution: " );
-    for (var i = 0; i < bestSolution.length; i++) {
-        console.log(bestSolution[i].name);
+    if (bandera == true){
+        console.log("Best Solution Cost2: " + bestSolutionCost);
+        console.log("Best Solution: " );
+        for (var i = 0; i < bestSolution.length; i++) {
+            console.log(bestSolution[i].name);
+        }
     }
-    
+}
+
+function Fact(num)
+{
+    if (num === 0)
+      { return 1; }
+    else
+      { return num * Fact( num - 1 ); }
 }
 
 var createNeighbour = function(solution){
-    var pos1 = randomNumber(solution.length-1,1);
-    var pos2 = randomNumber(solution.length-1,1);
+    var pos1 = randomNumber(solution.length,0);
+    var pos2 = randomNumber(solution.length,0);
     while(pos1 == pos2){
-        pos2 = randomNumber(solution.length-1,1);
+        pos2 = randomNumber(solution.length,0);
     }
     var temp = solution[pos1];
     solution[pos1] = solution[pos2];
@@ -536,21 +540,10 @@ var acceptanceProbability = function(currentCost, newCost, temperature){
 
 var getTotalCost = function(solution){
     var totalCost = 0;
-    for (var i = 0; i < solution.length; i++) {
-        var from = solution[i];
-        var to;
-        if (i+1 < solution.length){
-            to = solution[i+1];
-        }
-        else{
-            to = solution[0];
-        }
-
-        if (getEdgeCost(from,to)){
-            totalCost += getEdgeCost(from,to);
-        }
-        else{
-            totalCost += 0;
+    for (var i = 1; i < solution.length; i++) {
+        var cost = getEdgeCost(solution[i-1],solution[i]);
+        if (cost){
+            totalCost += cost;
         }
     }
     return totalCost;
@@ -575,6 +568,39 @@ var getEdgeCost = function(node, to) {
     }
     return cost;
 };
+
+var findRandomSolution = function(graph,node1,goal){
+    console.log("goal: " + goal.id);
+    var currentSolution = [];
+    var node;
+    var arr = [];
+    currentSolution.push(node1);
+    while(currentSolution.length > 0){          // Find initial solution (random solution)
+        node = currentSolution.pop();
+        console.log("name: " + node.name);
+        arr.push(node);
+        if(node.id == goal.id){
+            break;
+        }
+        if(node.visited == false) {
+            for(var i=graph.length-1; i>0; i--) {
+                if(getEdge(node, graph[i]))
+                    currentSolution.push(graph[i]);
+            }
+        }
+        node.visited = true;
+    }
+    return arr;
+}
+
+var tabu = function(graph, node1, goal){
+    var currentSolution = findRandomSolution(graph,node1,goal);
+
+}
+
+var findBestNeighboar = function(solution){
+
+}
 
 
 var callDFS = function(){
