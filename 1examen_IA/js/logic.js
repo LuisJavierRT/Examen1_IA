@@ -453,24 +453,24 @@ var SA = function(graph, node1, goal){
     var currentSolution = findRandomSolution(graph,node1,goal);
     var bandera;
     var bestSolution = currentSolution;         // Asumme is the best solution
-    console.log(currentSolution);
+    
     while(temp > 1){                            // Loop until system has cooled
         var newSolution = currentSolution;
 
         var newSolution = createNeighbour(newSolution);
+
         bandera = checkRoad(newSolution);
         var max = Fact(newSolution.length)/(2*(Fact(newSolution.length-2)));
         var iterations = 0;
-        console.log(max);
+
         while(bandera == false && max > iterations){
            newSolution = createNeighbour(newSolution);
            bandera = checkRoad(newSolution);
            iterations += 1;
-           console.log("entro");
         }
         var currentSolutionCost = getTotalCost(currentSolution);
         if(bandera == false){
-            console.log("Best Solution Cost1: " + currentSolutionCost);
+            console.log("Best Solution Cost: " + currentSolutionCost);
             console.log("Best Solution: ");
             for (var i = 0; i < currentSolution.length; i++) {
                 console.log(currentSolution[i].name);
@@ -495,7 +495,7 @@ var SA = function(graph, node1, goal){
 
     }
     if (bandera == true){
-        console.log("Best Solution Cost2: " + bestSolutionCost);
+        console.log("Best Solution Cost: " + bestSolutionCost);
         console.log("Best Solution: " );
         for (var i = 0; i < bestSolution.length; i++) {
             console.log(bestSolution[i].name);
@@ -512,10 +512,11 @@ function Fact(num)
 }
 
 var createNeighbour = function(solution){
-    var pos1 = randomNumber(solution.length,0);
-    var pos2 = randomNumber(solution.length,0);
+
+    var pos1 = randomNumber(solution.length-2,1);
+    var pos2 = randomNumber(solution.length-2,1);
     while(pos1 == pos2){
-        pos2 = randomNumber(solution.length,0);
+        pos2 = randomNumber(solution.length-2,1);
     }
     var temp = solution[pos1];
     solution[pos1] = solution[pos2];
@@ -574,28 +575,40 @@ var getEdgeCost = function(node, to) {
 };
 
 var findRandomSolution = function(graph,node1,goal){
-    console.log("goal: " + goal.id);
     var currentSolution = [];
     var node;
     var arr = [];
     currentSolution.push(node1);
     while(currentSolution.length > 0){          // Find initial solution (random solution)
         node = currentSolution.pop();
-        console.log("name: " + node.name);
-        arr.push(node);
+        arr.push(node.id);
         if(node.id == goal.id){
             break;
         }
         if(node.visited == false) {
-            for(var i=graph.length-1; i>0; i--) {
+            for(var i = 0; i < graph.length; i++) {
                 if(getEdge(node, graph[i]))
                     currentSolution.push(graph[i]);
             }
         }
         node.visited = true;
     }
+    return getNodesById(arr);
+}
+
+var getNodesById = function(nodes){
+    var arr = [];
+    for (var i = 0; i < nodes.length; i++) {
+        for (var j = 0; j < logicNetwork.length; j++) {
+            if(nodes[i] == logicNetwork[j].id){
+                arr.splice(i, 0, logicNetwork[j]);
+                break;
+            }
+        }
+    }
     return arr;
 }
+
 
 var tabu = function(graph, node1, goal){
     var currentSolution = findRandomSolution(graph,node1,goal);
@@ -603,7 +616,6 @@ var tabu = function(graph, node1, goal){
 }
 
 var findBestNeighboar = function(solution){
-
 }
 
 
