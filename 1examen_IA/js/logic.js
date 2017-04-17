@@ -450,17 +450,28 @@ var UCS = function(graph, node1, goal) {
 var SA = function(graph, node1, goal){
     var temp = 100000;
     var coolingRate = 0.003;
-    var currentSolution = findRandomSolution(graph,node1,goal);
+    findSolution(graph,node1,goal);
+    //var currentSolution = findRandomSolution(graph,node1,goal);
+    var currentSolution = solutionFinal.slice();
     var bandera;
-    var bestSolution = currentSolution;         // Asumme is the best solution
-    
-    while(temp > 1){                            // Loop until system has cooled
-        var newSolution = currentSolution;
+    var bestSolution = currentSolution.slice();         // Asumme is the best solution
 
-        var newSolution = createNeighbour(newSolution);
+    console.log("FIRST");
+    for (var i = 0; i < currentSolution.length; i++) {
+        console.log(currentSolution[i].name);
+    }
+    while(temp > 1){                            // Loop until system has cooled
+        var newSolution = currentSolution.slice();
+
+        newSolution = createNeighbour(newSolution);
+
+        console.log("NEW");
+        for (var i = 0; i < newSolution.length; i++) {
+            console.log(newSolution[i].name);
+        }
 
         bandera = checkRoad(newSolution);
-        var max = Fact(newSolution.length)/(2*(Fact(newSolution.length-2)));
+        var max = Fact(newSolution.length-2)/(2*(Fact(newSolution.length-4)));
         var iterations = 0;
 
         while(bandera == false && max > iterations){
@@ -470,7 +481,7 @@ var SA = function(graph, node1, goal){
         }
         var currentSolutionCost = getTotalCost(currentSolution);
         if(bandera == false){
-            console.log("Best Solution Cost: " + currentSolutionCost);
+            console.log("Best Solution Cost1: " + currentSolutionCost);
             console.log("Best Solution: ");
             for (var i = 0; i < currentSolution.length; i++) {
                 console.log(currentSolution[i].name);
@@ -495,7 +506,7 @@ var SA = function(graph, node1, goal){
 
     }
     if (bandera == true){
-        console.log("Best Solution Cost: " + bestSolutionCost);
+        console.log("Best Solution Cost2: " + bestSolutionCost);
         console.log("Best Solution: " );
         for (var i = 0; i < bestSolution.length; i++) {
             console.log(bestSolution[i].name);
@@ -557,14 +568,23 @@ function Fact(num)
 var createNeighbour = function(solution){
 
     var pos1 = randomNumber(solution.length-2,1);
-    var pos2 = randomNumber(solution.length-2,1);
-    while(pos1 == pos2){
-        pos2 = randomNumber(solution.length-2,1);
+    var pos2;
+    var x = pos1 + 1;
+    var y = pos1 - 1;
+
+    if (x==solution.length-1){
+        pos2 = pos1;
+        pos1 -= 1;
     }
+    else{
+        pos2 = pos1 + 1;
+    }
+
     var temp = solution[pos1];
     solution[pos1] = solution[pos2];
     solution[pos2] = temp;
     return solution;
+
 }
 
 var checkRoad = function(solution){
@@ -621,10 +641,12 @@ var findRandomSolution = function(graph,node1,goal){
     var currentSolution = [];
     var node;
     var arr = [];
+    var arr2 = [];
     currentSolution.push(node1);
     while(currentSolution.length > 0){          // Find initial solution (random solution)
         node = currentSolution.pop();
         arr.push(node.id);
+        arr2.push(node.name);
         if(node.id == goal.id){
             break;
         }
@@ -636,7 +658,43 @@ var findRandomSolution = function(graph,node1,goal){
         }
         node.visited = true;
     }
+    /*console.log(arr);
+    for (var i = 0; i < arr2.length; i++) {
+        console.log(arr2[i]);
+    }
+    console.log(arr2);*/
     return getNodesById(arr);
+}
+var solutionFinal = [];
+var findSolution = function(graph,node1,goal){
+   
+    node1.visited = true;
+    var ant = node1;
+    if(node1.id == goal.id){
+        solutionFinal.push(goal);
+        return;
+    }
+    if(goal.visited == true){
+        return;
+    }
+    if(node1.edges.length==0){
+        return;
+    }
+    else{
+        //console.log(node1.name);
+        var t = node1.edges.length;
+        solutionFinal.push(node1);
+            for (var i = 0; i < t; i++) {
+                for (var j = 0; j < logicNetwork.length; j++) {
+                    if(node1.edges[i].to == logicNetwork[j].id){
+                        if(!logicNetwork[j].visited){
+                            
+                            findSolution(logicNetwork,logicNetwork[j],goal);
+                        }
+                    }
+                }
+            }
+    }
 }
 
 var getNodesById = function(nodes){
