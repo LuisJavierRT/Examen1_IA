@@ -180,19 +180,23 @@ var saveNodeData = function(data,action,callback) {
     data.id = parseInt(idInput.value);
     data.label = labelInput.value;
     clearPopUp();
-    callback(data);
     if(action == "I"){
+        data.visited = false;
+        data.initial = false;
+        data.final = false;
+        callback(data);
         var node = {
             id: data.id, 
             name: data.label, 
-            visited: false, 
-            final: false, 
-            initial: false, 
+            visited: data.visited, 
+            final: data.final, 
+            initial: data.initial, 
             edges: []
         };
         logicNetwork.push(node);
     }
     else{
+        callback(data);
         for(var i=0; i<logicNetwork.length; i++) {
             if(logicNetwork[i].id == data.id) {
                 logicNetwork[i].name = data.label;
