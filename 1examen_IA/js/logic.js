@@ -5,6 +5,7 @@ var data = {};
 var network = undefined;
 var container = undefined;
 var logicNetwork = [];
+var solutionFinal = [];
 var json;
 var options = {
     stabilize: false,
@@ -246,6 +247,7 @@ var clearAllStates = function() {
         logicNetwork[i].final = false;
         data.nodes.update({id: i+1, visited: false, initial: false, final: false, color:"#99ccff"});
     }
+    solucionFinal = [];
     clearAllVisites();
 }
 
@@ -664,7 +666,6 @@ var findRandomSolution = function(graph,node1,goal){
 */
 
 
-var solutionFinal = [];
 var findSolution = function(graph,node1,goal){
    
     node1.visited = true;
