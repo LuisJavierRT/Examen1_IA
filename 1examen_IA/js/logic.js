@@ -343,11 +343,14 @@ var updateLogicNetworkOnNew = function(nodes, edges) {
     }
 };
 
+/*
 var DFS = function(graph, node1, goal) {
     var stack = [];
+    var closeStack = [];
     var node;
     var succes = "Fracaso";
     stack.push(node1);
+    closeStack.push(node1);
     while(stack.length > 0) {
         node = stack.pop();
         console.log("->" + node.name);
@@ -364,7 +367,50 @@ var DFS = function(graph, node1, goal) {
         node.visited = true;
     }
     console.log(succes);
+};*/
+
+var DFS = function(graph, node1, goal) {
+    var stack = [];
+    var closeStack = [];
+    var node;
+    var succes = "Fracaso";
+    stack.push(node1);
+    while(stack.length > 0) {
+        node = stack.pop();
+        closeStack.push(node);
+        console.log(closeStack);
+        console.log("->" + node.name);
+        if(node.id == goal.id){
+            succes = "Exito";
+            break;
+        }
+        for(var i=0; i<graph.length; i++){
+            if(getEdgeTest(node, graph[i], closeStack)){
+                stack.push(graph[i]);
+            }
+        }
+    }
+    console.log(succes);
 };
+
+var avoidCycle = function(node, list) {
+    for(var i=0; i<list.length; i++) {
+        if(list[i].id == node.to){
+            return false;
+        }
+    }
+    return true;
+};
+
+var getEdgeTest = function(node, to, closeList) {
+    for(var i=0; i<node.edges.length; i++) {
+        if(node.edges[i].to == to.id && avoidCycle(node.edges[i], closeList)){
+            return true;
+        }
+    }
+    return false;
+};
+
 
 var DLS = function(graph, node1, goal, limit) {
     var stack = [];
@@ -555,13 +601,12 @@ var BIDI = function(graph, node1, goal) {
     console.log(succes);
 };
 
-function Fact(num)
-{
+var Fact = function(num){
     if (num === 0)
-      { return 1; }
+        return 1;
     else
-      { return num * Fact( num - 1 ); }
-}
+        return num * Fact( num - 1 ); 
+};
 
 var createNeighbour = function(solution){
 
@@ -583,7 +628,7 @@ var createNeighbour = function(solution){
     solution[pos2] = temp;
     return solution;
 
-}
+};
 
 var checkRoad = function(solution){
     for (var i = 1; i < solution.length; i++) {
@@ -592,7 +637,7 @@ var checkRoad = function(solution){
         }
     }
     return true
-}
+};
 
 var acceptanceProbability = function(currentCost, newCost, temperature){
     if(newCost < currentCost){
@@ -601,7 +646,7 @@ var acceptanceProbability = function(currentCost, newCost, temperature){
     else{
         return Math.exp((currentCost - newCost) / temperature);
     }
-}
+};
 
 
 var getTotalCost = function(solution){
@@ -613,7 +658,7 @@ var getTotalCost = function(solution){
         }
     }
     return totalCost;
-}
+};
 
 var getEdge = function(node, to) {
     for(var i=0; i<node.edges.length; i++) {
@@ -688,14 +733,13 @@ var findSolution = function(graph,node1,goal){
                 for (var j = 0; j < logicNetwork.length; j++) {
                     if(node1.edges[i].to == logicNetwork[j].id){
                         if(!logicNetwork[j].visited){
-                            
                             findSolution(logicNetwork,logicNetwork[j],goal);
                         }
                     }
                 }
             }
     }
-}
+};
 
 var getNodesById = function(nodes){
     var arr = [];
@@ -708,17 +752,16 @@ var getNodesById = function(nodes){
         }
     }
     return arr;
-}
+};
 
 
 var tabu = function(graph, node1, goal){
     var currentSolution = findRandomSolution(graph,node1,goal);
-
-}
+};
 
 var findBestNeighboar = function(solution){
-}
 
+};
 
 var callDFS = function(){
     console.log("\n-------\n");
