@@ -64,7 +64,8 @@ var options = {
         div.style.display = 'block';
     },
     onDelete: function(data, callback){
-       
+       callback(data);
+       deleteNode(data.nodes[0]);
     }
 }; 
 
@@ -116,7 +117,6 @@ var auto_graph = function(number){
         nodes: nodes,
         edges: edges
     };
-    
     // initialize your network!
     network = new vis.Network(container, data, options);
 
@@ -139,7 +139,7 @@ var clearPopUp = function() {
     cancelButton.onclick = null;
     var div = document.getElementById('network-popUp');
     div.style.display = 'none';
-}
+};
 
 var saveEdgeData = function(data, action, callback) {
     var idInput = document.getElementById('node-id');
@@ -147,6 +147,7 @@ var saveEdgeData = function(data, action, callback) {
     var div = document.getElementById('network-popUp');
     if(action == "I"){
         data.label = parseInt(labelInput.value);
+        data.color = "blue";
         clearPopUp();
         callback(data);
         for(var i=0; i<logicNetwork.length; i++) {
@@ -343,6 +344,21 @@ var updateLogicNetworkOnNew = function(nodes, edges) {
     }
 };
 
+var deleteNode = function(id) {
+    for(var i=0; i<logicNetwork.length; i++) {
+        if(logicNetwork[i].id == id) {
+            logicNetwork.splice(i,1);
+        }
+    }
+    for(var i=0; i<logicNetwork.length; i++) {
+        for(var j=0; j<logicNetwork[i].edges.length; j++) {
+            if(logicNetwork[i].edges[j].to == id) {
+                logicNetwork[i].edges.splice(j,1);
+            }
+        }
+    }
+};
+
 /*
 var DFS = function(graph, node1, goal) {
     var stack = [];
@@ -369,26 +385,61 @@ var DFS = function(graph, node1, goal) {
     console.log(succes);
 };*/
 
+
 var DFS = function(graph, node1, goal) {
     var stack = [];
     var closeStack = [];
     var node;
     var succes = "Fracaso";
+    var size = 0;
     stack.push(node1);
     while(stack.length > 0) {
         node = stack.pop();
         closeStack.push(node);
-        console.log(closeStack);
-        console.log("->" + node.name);
+        //console.log("->" + node.name);
         if(node.id == goal.id){
             succes = "Exito";
             break;
         }
         for(var i=0; i<graph.length; i++){
+            console.log("entro");
             if(getEdgeTest(node, graph[i], closeStack)){
+                console.log(graph[i]);
                 stack.push(graph[i]);
             }
         }
+    }
+    console.log(succes);
+    size = sizeof(stack) + sizeof(closeStack) + sizeof(node);
+    console.log(size);
+};
+
+/*
+var DFS = function(graph, node1, goal) {
+    var stack = [];
+    var openStack = [];
+    var closeStack = [];
+    var node;
+    var succes = "Fracaso";
+    stack.push(node1);
+    openStack.push(stack);
+    while(stack.length > 0) {
+        node = stack.pop();
+        closeStack.push(node);
+        if(node.id == goal.id){
+            console.log(openStack);
+            console.log(closeStack);
+            succes = "Exito";
+            break;
+        }
+        for(var i=0; i<graph.length; i++){
+            //console.log("entro");
+            if(getEdgeTest(node, graph[i], closeStack)){
+                //console.log(graph[i]);
+                stack.push(graph[i]);
+            }
+        }
+        openStack.push(stack);
     }
     console.log(succes);
 };
@@ -410,33 +461,53 @@ var getEdgeTest = function(node, to, closeList) {
     }
     return false;
 };
-
-
+*/
 var DLS = function(graph, node1, goal, limit) {
     var stack = [];
     var depth_stack = [];
+    var closeStack = [];
     var node;
     var depth;
+    var size = 0;
     stack.push(node1);
     depth_stack.push(0);
     while(stack.length > 0) {
         node = stack.pop();
         depth = depth_stack.pop();
+        closeStack.push(node);
         console.log("->" + node.name);
         console.log("Depth: " + depth);
+        console.log(closeStack);
         if(node.id == goal.id){
+            size = sizeof(stack) + sizeof(depth_stack) + sizeof(closeStack) + sizeof(node) + sizeof(depth);
+            console.log(size);
             return true;
         }
         if(depth < limit) {
-            if(node.visited == false) {
-                for(var i=graph.length-1; i>0; i--) {
-                    if(getEdge(node, graph[i])){
-                        stack.push(graph[i]);
-                        depth_stack.push(depth+1);
-                    }
+            for(var i=graph.length-1; i>0; i--) {
+                if(getEdgeTest(node, graph[i], closeStack)){
+                    stack.push(graph[i]);
+                    depth_stack.push(depth+1);
                 }
             }
-            node.visited = true;
+        }
+    }
+    return false;
+};
+
+var avoidCycle = function(node, list) {
+    for(var i=0; i<list.length; i++) {
+        if(list[i].id == node.to){
+            return false;
+        }
+    }
+    return true;
+};
+
+var getEdgeTest = function(node, to, closeList) {
+    for(var i=0; i<node.edges.length; i++) {
+        if(node.edges[i].to == to.id && avoidCycle(node.edges[i], closeList)){
+            return true;
         }
     }
     return false;
@@ -499,7 +570,10 @@ var SA = function(graph, node1, goal){
     var temp = 100000;
     var coolingRate = 0.003;
     findSolution(graph,node1,goal);
-    if(solutionFinal[solutionFinal.length-1].id != goal.id){
+    if(solutionFinal.length == 0){
+        console.log("Failure, no route");
+    }
+    else if(solutionFinal[solutionFinal.length-1].id != goal.id){
         console.log("Failure, no route");
     }
     else{
