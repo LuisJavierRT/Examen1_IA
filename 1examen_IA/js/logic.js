@@ -505,6 +505,7 @@ var UCS = function(graph, node1, goal) {
 var SA = function(graph, node1, goal){
     var temp = 100000;
     var coolingRate = 0.003;
+    var size = 0;
     findSolution(graph,node1,goal);
     if(solutionFinal.length == 0){
         console.log("Failure, no route");
@@ -562,8 +563,13 @@ var SA = function(graph, node1, goal){
             console.log("Best Solution Cost: " + bestSolutionCost);
             console.log("Best Solution: " );
             for (var i = 0; i < bestSolution.length; i++) {
-                console.log(bestSolution[i].name);
+
+                if(bestSolution[i].name != undefined){
+                    console.log(bestSolution[i].name);
+                }
             }
+            size = sizeof(currentSolution) + sizeof(bestSolution) + sizeof(newSolution) + sizeof(bestSolutionCost) + sizeof(currentSolutionCost) + sizeof(newSolutionCost);
+                console.log("Size: " + size);
         }
     }
 }
@@ -625,6 +631,7 @@ var createNeighbour = function(solution){
     var x = pos1 + 1;
     var y = pos1 - 1;
 
+
     if (x==solution.length-1){
         pos2 = pos1;
         pos1 -= 1;
@@ -633,12 +640,16 @@ var createNeighbour = function(solution){
         pos2 = pos1 + 1;
     }
 
+    
     var temp = solution[pos1];
     solution[pos1] = solution[pos2];
     solution[pos2] = temp;
     return solution;
 
 };
+
+
+
 
 var checkRoad = function(solution){
     for (var i = 1; i < solution.length; i++) {
@@ -662,7 +673,7 @@ var acceptanceProbability = function(currentCost, newCost, temperature){
 var getTotalCost = function(solution){
     var totalCost = 0;
     for (var i = 1; i < solution.length; i++) {
-        var cost = getEdgeCost(solution[i-1],solution[i]);
+        var cost = getEdgeCost2(solution[i-1],solution[i]);
         if (cost){
             totalCost += cost;
         }
@@ -689,6 +700,18 @@ var getEdgeCost = function(node, to, closeList) {
     }
     return cost;
 };
+
+var getEdgeCost2 = function(node, to, closeList) {
+    var cost = 9999;
+    for(var i=0; i<node.edges.length; i++) {
+        if(node.edges[i].to == to.id){
+            cost = node.edges[i].weigth;
+            break;
+        }
+    }
+    return cost;
+};
+
 
 var findSolution = function(graph,node1,goal){
    
@@ -733,11 +756,10 @@ var getNodesById = function(nodes){
     return arr;
 };
 
+var tabuList = [];
 var TABU = function(graph, node1, goal){
-    var maximum_criteria = 1;
-    var tabuLength = 1;
+    var maximum_criteria = 100;
     var contador = 0;
-    var tabuList = [];
     findSolution(graph,node1,goal);
     if(solutionFinal.length == 0){
         console.log("Failure, no route");
@@ -748,39 +770,24 @@ var TABU = function(graph, node1, goal){
     else{ 
         var currentSolution = solutionFinal.slice();
 
-        tabuList.push(currentSolution);
-        //var bandera;
         var bestSolution = currentSolution.slice();         // Asumme is the best solution
 
-        /*console.log("FIRST");
-        for (var i = 0; i < currentSolution.length; i++) {
-            console.log(currentSolution[i].name);
-        }*/
-        var newSolution = currentSolution.slice();
+        //var newSolution = currentSolution.slice();
 
         while(maximum_criteria > contador){                            // Loop until system has cooled
             
-            newSolution = findBestNeighboar(newSolution);
-
-            console.log("NEW");
-            for (var i = 0; i < newSolution.length; i++) {
-                console.log(newSolution[i].name);
-            }
-
-            //var currentSolutionCost = getTotalCost(currentSolution);
+            var newSolution = findBestNeighboar(solutionFinal);
+            //tabuList = [];
 
             var newSolutionCost = getTotalCost(newSolution);
             var bestSolutionCost = getTotalCost(bestSolution);
 
-            if(tabuList.length == 10){
-                tabuList.shift();
-            }
-            tabuList.push(newSolution);
 
             if(newSolutionCost < bestSolutionCost){
                 bestSolution = newSolution;
             }
-            newSolution = currentSolution;
+
+
             contador += 1;
         }
 
@@ -788,33 +795,89 @@ var TABU = function(graph, node1, goal){
         console.log("Best Solution Cost: " + bestSolutionCost);
         console.log("Best Solution: " );
         for (var i = 0; i < bestSolution.length; i++) {
-            console.log(bestSolution[i].name);
+            if(bestSolution[i].name != undefined){
+                console.log(bestSolution[i].name);
+            }
         }
+        size = sizeof(currentSolution) + sizeof(bestSolution) + sizeof(newSolution) + sizeof(bestSolutionCost)  + sizeof(newSolutionCost);
+                console.log("Size: " + size);
     }
 }
 
+var createNeighbourTabu = function(solution){
 
+    var pos1 = randomNumber(solution.length-2,1);
+    var pos2;
+    var x = pos1 + 1;
+    var y = pos1 - 1;
+    var bandera = false;
+
+    if (x==solution.length-1){
+        pos2 = pos1;
+        pos1 -= 1;
+    }
+    else{
+        pos2 = pos1 + 1;
+    }
+    var temporal = [pos1,pos2];
+
+
+    if(tabuList.length == 0){
+        var temp = solution[pos1];
+        solution[pos1] = solution[pos2];
+        solution[pos2] = temp;
+        var tupla = [pos1,pos2];
+        tabuList.push(tupla);
+    }
+    else{
+        for (var i = 0; i < tabuList.length; i++) {
+            if((tabuList[i][0] == temporal[0]) && (tabuList[i][1] == temporal[1])){
+                bandera = true;
+            } 
+        }
+        if(bandera == false){
+             var temp = solution[pos1];
+            solution[pos1] = solution[pos2];
+            solution[pos2] = temp;
+            var tupla = [pos1,pos2];
+            if(tabuList.length == 10){
+                tabuList.shift();
+            }
+            tabuList.push(tupla);
+        }    
+    }
+
+    return solution;
+
+};
 
 var findBestNeighboar = function(solution){
     var max = Fact(solution.length-2)/(2*(Fact(solution.length-4)));
     var conta = 0;
-    var bandera;
+    //var bandera;
     var lista = [];
     var best = solution.slice();
-    var newSolution = undefined;
+    //var newSolution = undefined;
     var firstSolution = solution.slice();
+ 
     while(max>conta){
 
-        newSolution = createNeighbour(firstSolution);
+        var newSolution = createNeighbourTabu(firstSolution);
 
-        bandera = checkRoad(newSolution);
- 
+        var bandera = checkRoad(newSolution);
+        
         if (bandera == true){
-            console.log("NEW");
+            /*console.log("BUENA");
             for (var i = 0; i < newSolution.length; i++) {
                 console.log(newSolution[i].name);
-            }
+            }*/
             lista.push(newSolution);
+        }
+        else{
+            /*console.log("MALA");
+            for (var i = 0; i < newSolution.length; i++) {
+                console.log(newSolution[i].name);
+            }*/
         }
 
         conta += 1;
@@ -823,12 +886,15 @@ var findBestNeighboar = function(solution){
     if(lista.length > 0){
         for (var i = 0; i < lista.length; i++) {
             if(getTotalCost(lista[i]) < getTotalCost(best)){
-                best = lista[i].slice();
+                best = lista[i];
+                //console.log(lista);
             }
         }
+ 
         return best
     }
     else{
+
         return solution;
     }
     
@@ -947,6 +1013,7 @@ var callUCS = function(){
 };
 
 var callSA = function(){
+    startTime = new Date().getTime();
     console.log("\n-------\n");
     for(var i=0; i<logicNetwork.length; i++) {
         if(logicNetwork[i].initial) {
@@ -958,6 +1025,9 @@ var callSA = function(){
             }
         }
     }
+    endTime = new Date().getTime();
+    timeElapsed = endTime - startTime;
+    console.log("Time: " + timeElapsed/1000 + " seconds");
 };
 
 var callBI = function(){
@@ -975,6 +1045,7 @@ var callBI = function(){
 };
 
 var callTABU = function(){
+    startTime = new Date().getTime();
     console.log("\n-------\n");
     for(var i=0; i<logicNetwork.length; i++) {
         if(logicNetwork[i].initial) {
@@ -986,6 +1057,9 @@ var callTABU = function(){
             }
         }
     }
+    endTime = new Date().getTime();
+    timeElapsed = endTime - startTime;
+    console.log("Time: " + timeElapsed/1000 + " seconds");
 };
 
 
