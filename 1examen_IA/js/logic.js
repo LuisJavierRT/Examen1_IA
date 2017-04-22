@@ -119,12 +119,12 @@ var auto_graph = function(number){
         edges: edges
     };
     // initialize your network!
-    /*network = new vis.Network(container, data, options);
+    network = new vis.Network(container, data, options);
 
     network.on("select", function (params) {
         idNode = params.nodes[0];
         idEdges = params.edges;
-    }); */
+    }); 
 };
 
 var setStates = function() {
@@ -569,7 +569,7 @@ var SA = function(graph, node1, goal){
                 }
             }
             size = sizeof(currentSolution) + sizeof(bestSolution) + sizeof(newSolution) + sizeof(bestSolutionCost) + sizeof(currentSolutionCost) + sizeof(newSolutionCost);
-                console.log("Size: " + size);
+            console.log("Size: " + size);
         }
     }
 }
@@ -647,9 +647,6 @@ var createNeighbour = function(solution){
     return solution;
 
 };
-
-
-
 
 var checkRoad = function(solution){
     for (var i = 1; i < solution.length; i++) {
@@ -800,7 +797,7 @@ var TABU = function(graph, node1, goal){
             }
         }
         size = sizeof(currentSolution) + sizeof(bestSolution) + sizeof(newSolution) + sizeof(bestSolutionCost)  + sizeof(newSolutionCost);
-                console.log("Size: " + size);
+        console.log("Size: " + size);
     }
 }
 
@@ -1062,9 +1059,44 @@ var callTABU = function(){
     console.log("Time: " + timeElapsed/1000 + " seconds");
 };
 
+var search = function(value) {
+    if(value=="DFS"){
+        callDFS();
+    }
+    else if(value=="DLS"){
+        callDLS();
+    }
+    else if(value=="IDS"){
+        callIDS();
+    }
+    else if(value=="BFS"){
+        callBFS();
+    }
+    else if(value=="BIDI"){
+        callBI();
+    }
+    else if(value=="UCS"){
+        callUCS();
+    }
+    else if(value=="SA"){
+        callSA();
+    }
+    else if(value=="TABU"){
+        callTABU();
+    }
+};
 
+var grafo = function(value) {
+    if(value=="initial")
+        setInitialState();
+    else if(value=="final")
+        setFinalState();
+    else if(value="clearAll")
+        clearAllStates();
+    else
+        clearAllVisites();
+};
 
 document.getElementById('files').addEventListener('change', loadGraphJSON, false);
-
 auto_graph(0);
 setStates();

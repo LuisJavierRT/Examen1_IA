@@ -19,3 +19,8 @@
     padding:10px;
     text-align: center;
 }
+
+select option {
+    background: white;
+    color: black;
+}
