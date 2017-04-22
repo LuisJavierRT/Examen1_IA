@@ -338,7 +338,7 @@ var updateLogicNetworkOnNew = function(nodes, edges) {
         var listaEdges = [];
         for(var j=0; j<edges.length; j++) {
             if(nodes[i].id == edges[j].from) {
-                listaEdges.push({to: edges[j].to, weigth: edges[j].label});
+                listaEdges.push({to: edges[j].to, weigth: parseInt(edges[j].label)});
             }
         }
         var node = {
@@ -480,26 +480,56 @@ var UCS = function(graph, node1, goal) {
     queue.push(node1);
     queue.push(0);
     while(queue.length > 0) {
-        node = queue.shift();
-        cost = queue.shift();
+        cost = queue.pop();
+        node = queue.pop();
         closeStack.push(node);
-        console.log("->" + node.name);
-        console.log("Cost: " + cost);
         if(node.id == goal.id){
+            console.log("Cost: " + cost);
             succes = "Exito";
             break;
         }
-        for(var i=0; i<graph.length; i++){
-            child_cost = getEdgeCost(node, graph[i], closeStack);
-            if(child_cost){
-                queue.push(graph[i]);
-                queue.push(child_cost);
+        else {
+            for(var i=0; i<graph.length; i++){
+                if(node.id != graph[i].id && avoidCycle(graph[i], closeStack)){
+                    if(graph[i].id != node1.id ){
+                        child_cost = getEdgeCost(node, graph[i], closeStack);
+                        if(child_cost){
+                            queue.push(graph[i]);
+                            queue.push(child_cost+cost);
+                            queue = sort(queue);
+                        }
+                    }   
+                }
             }
         }
     }
     size = sizeof(queue) + sizeof(closeStack) + sizeof(cost) + sizeof(node);
     console.log("Size: " + size);
     console.log(succes);
+};
+
+var change = function(list, indexOne, indexTwo, indexThree,indexFour){
+    var tmpVal = list[indexOne];
+    var tmpVal2 = list[indexTwo];
+    list[indexOne] = list[indexThree];
+    list[indexTwo] = list[indexFour];
+    list[indexThree] = tmpVal;
+    list[indexFour] = tmpVal2;
+    return list;
+};
+
+var sort = function(list){
+    var size = list.length;
+    var band = false;
+    for(pass = 3; pass < size; pass+=2){ // outer loop
+        for(left = 1; left <= (size - pass); left+=2){ // inner loop
+            var right = left + 2;
+            if( list[left] < list[right] ){
+                list = change(list, left-1, left, right-1, right);
+            }
+        }
+    }
+    return list;
 };
 
 var SA = function(graph, node1, goal){
