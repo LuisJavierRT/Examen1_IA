@@ -7,6 +7,7 @@ var container = undefined;
 var logicNetwork = [];
 var solutionFinal = [];
 var json;
+var startTime, endTime, timeElapsed;
 var options = {
     stabilize: false,
     dataManipulation: true,
@@ -118,18 +119,26 @@ var auto_graph = function(number){
         edges: edges
     };
     // initialize your network!
-    network = new vis.Network(container, data, options);
+    /*network = new vis.Network(container, data, options);
 
     network.on("select", function (params) {
         idNode = params.nodes[0];
         idEdges = params.edges;
-    }); 
+    }); */
 };
+
+var setStates = function() {
+    logicNetwork[0].initial = true;
+    logicNetwork[logicNetwork.length-1].final = true;
+};
+
 
 var createAutoGraph = function(){
     var num = document.getElementById("num").value;
-    if(num != undefined)
+    if(num != undefined){
         auto_graph(num);
+        setStates();
+    }
 };
 
 var clearPopUp = function() {
@@ -359,33 +368,6 @@ var deleteNode = function(id) {
     }
 };
 
-/*
-var DFS = function(graph, node1, goal) {
-    var stack = [];
-    var closeStack = [];
-    var node;
-    var succes = "Fracaso";
-    stack.push(node1);
-    closeStack.push(node1);
-    while(stack.length > 0) {
-        node = stack.pop();
-        console.log("->" + node.name);
-        if(node.id == goal.id){
-            succes = "Exito";
-            break;
-        }
-        if(node.visited == false) {
-            for(var i=graph.length-1; i>0; i--) {
-                if(getEdge(node, graph[i]))
-                    stack.push(graph[i]);
-            }
-        }
-        node.visited = true;
-    }
-    console.log(succes);
-};*/
-
-
 var DFS = function(graph, node1, goal) {
     var stack = [];
     var closeStack = [];
@@ -402,66 +384,17 @@ var DFS = function(graph, node1, goal) {
             break;
         }
         for(var i=0; i<graph.length; i++){
-            console.log("entro");
             if(getEdgeTest(node, graph[i], closeStack)){
-                console.log(graph[i]);
                 stack.push(graph[i]);
             }
         }
     }
-    console.log(succes);
     size = sizeof(stack) + sizeof(closeStack) + sizeof(node);
-    console.log(size);
-};
-
-/*
-var DFS = function(graph, node1, goal) {
-    var stack = [];
-    var openStack = [];
-    var closeStack = [];
-    var node;
-    var succes = "Fracaso";
-    stack.push(node1);
-    openStack.push(stack);
-    while(stack.length > 0) {
-        node = stack.pop();
-        closeStack.push(node);
-        if(node.id == goal.id){
-            console.log(openStack);
-            console.log(closeStack);
-            succes = "Exito";
-            break;
-        }
-        for(var i=0; i<graph.length; i++){
-            //console.log("entro");
-            if(getEdgeTest(node, graph[i], closeStack)){
-                //console.log(graph[i]);
-                stack.push(graph[i]);
-            }
-        }
-        openStack.push(stack);
-    }
+    console.log("Size: " + size);
     console.log(succes);
+    result = true;
 };
 
-var avoidCycle = function(node, list) {
-    for(var i=0; i<list.length; i++) {
-        if(list[i].id == node.to){
-            return false;
-        }
-    }
-    return true;
-};
-
-var getEdgeTest = function(node, to, closeList) {
-    for(var i=0; i<node.edges.length; i++) {
-        if(node.edges[i].to == to.id && avoidCycle(node.edges[i], closeList)){
-            return true;
-        }
-    }
-    return false;
-};
-*/
 var DLS = function(graph, node1, goal, limit) {
     var stack = [];
     var depth_stack = [];
@@ -480,11 +413,11 @@ var DLS = function(graph, node1, goal, limit) {
         console.log(closeStack);
         if(node.id == goal.id){
             size = sizeof(stack) + sizeof(depth_stack) + sizeof(closeStack) + sizeof(node) + sizeof(depth);
-            console.log(size);
+            console.log("Size: " + size);
             return true;
         }
         if(depth < limit) {
-            for(var i=graph.length-1; i>0; i--) {
+            for(var i=0; i<graph.length; i++){
                 if(getEdgeTest(node, graph[i], closeStack)){
                     stack.push(graph[i]);
                     depth_stack.push(depth+1);
@@ -515,54 +448,57 @@ var getEdgeTest = function(node, to, closeList) {
 
 var BFS = function(graph, node1, goal) {
     var queue = [];
-    var node;
+    var closeStack = [];
+    var node, size;
     var succes = "Fracaso";
     queue.push(node1);
     while(queue.length > 0) {
         node = queue.shift();
+        closeStack.push(node);
         console.log("->" + node.name);
         if(node.id == goal.id){
             succes = "Exito";
             break;
         }
-        if(node.visited == false) {
-            for(var i=graph.length-1; i>0; i--) {
-                if(getEdge(node, graph[i]))
-                    queue.push(graph[i]);
+        for(var i=0; i<graph.length; i++){
+            if(getEdgeTest(node, graph[i], closeStack)){
+                console.log(graph[i]);
+                queue.push(graph[i]);
             }
         }
-        node.visited = true;
     }
+    size = sizeof(queue) + sizeof(closeStack) + sizeof(node);
+    console.log("Size: " + size);
     console.log(succes);
 };
 
 var UCS = function(graph, node1, goal) {
     var queue = [];
-    var node;
-    var cost;
+    var closeStack = [];
+    var node, cost, child_cost, size;
     var succes = "Fracaso";
     queue.push(node1);
     queue.push(0);
     while(queue.length > 0) {
         node = queue.shift();
         cost = queue.shift();
+        closeStack.push(node);
         console.log("->" + node.name);
         console.log("Cost: " + cost);
         if(node.id == goal.id){
             succes = "Exito";
             break;
         }
-        if(node.visited == false) {
-            for(var i=graph.length-1; i>0; i--) {
-                cost = getEdgeCost(node, graph[i]);
-                if(cost){
-                    queue.push(graph[i]);
-                    queue.push(cost);
-                }
+        for(var i=0; i<graph.length; i++){
+            child_cost = getEdgeCost(node, graph[i], closeStack);
+            if(child_cost){
+                queue.push(graph[i]);
+                queue.push(child_cost);
             }
         }
-        node.visited = true;
     }
+    size = sizeof(queue) + sizeof(closeStack) + sizeof(cost) + sizeof(node);
+    console.log("Size: " + size);
     console.log(succes);
 };
 
@@ -743,47 +679,16 @@ var getEdge = function(node, to) {
     return false;
 };
 
-var getEdgeCost = function(node, to) {
+var getEdgeCost = function(node, to, closeList) {
     var cost;
     for(var i=0; i<node.edges.length; i++) {
-        if(node.edges[i].to == to.id){
+        if(node.edges[i].to == to.id && avoidCycle(node.edges[i], closeList)){
             cost = node.edges[i].weigth;
             break;
         }
     }
     return cost;
 };
-/*
-var findRandomSolution = function(graph,node1,goal){
-    var currentSolution = [];
-    var node;
-    var arr = [];
-    var arr2 = [];
-    currentSolution.push(node1);
-    while(currentSolution.length > 0){          // Find initial solution (random solution)
-        node = currentSolution.pop();
-        arr.push(node.id);
-        arr2.push(node.name);
-        if(node.id == goal.id){
-            break;
-        }
-        if(node.visited == false) {
-            for(var i = 0; i < graph.length; i++) {
-                if(getEdge(node, graph[i]))
-                    currentSolution.push(graph[i]);
-            }
-        }
-        node.visited = true;
-    }
-    console.log(arr);
-    for (var i = 0; i < arr2.length; i++) {
-        console.log(arr2[i]);
-    }
-    console.log(arr2);
-    return getNodesById(arr);
-}
-*/
-
 
 var findSolution = function(graph,node1,goal){
    
@@ -828,16 +733,109 @@ var getNodesById = function(nodes){
     return arr;
 };
 
+var TABU = function(graph, node1, goal){
+    var maximum_criteria = 1;
+    var tabuLength = 1;
+    var contador = 0;
+    var tabuList = [];
+    findSolution(graph,node1,goal);
+    if(solutionFinal.length == 0){
+        console.log("Failure, no route");
+    }
+    else if(solutionFinal[solutionFinal.length-1].id != goal.id){
+        console.log("Failure, no route");
+    }
+    else{ 
+        var currentSolution = solutionFinal.slice();
 
-var tabu = function(graph, node1, goal){
-    var currentSolution = findRandomSolution(graph,node1,goal);
-};
+        tabuList.push(currentSolution);
+        //var bandera;
+        var bestSolution = currentSolution.slice();         // Asumme is the best solution
+
+        /*console.log("FIRST");
+        for (var i = 0; i < currentSolution.length; i++) {
+            console.log(currentSolution[i].name);
+        }*/
+        var newSolution = currentSolution.slice();
+
+        while(maximum_criteria > contador){                            // Loop until system has cooled
+            
+            newSolution = findBestNeighboar(newSolution);
+
+            console.log("NEW");
+            for (var i = 0; i < newSolution.length; i++) {
+                console.log(newSolution[i].name);
+            }
+
+            //var currentSolutionCost = getTotalCost(currentSolution);
+
+            var newSolutionCost = getTotalCost(newSolution);
+            var bestSolutionCost = getTotalCost(bestSolution);
+
+            if(tabuList.length == 10){
+                tabuList.shift();
+            }
+            tabuList.push(newSolution);
+
+            if(newSolutionCost < bestSolutionCost){
+                bestSolution = newSolution;
+            }
+            newSolution = currentSolution;
+            contador += 1;
+        }
+
+        console.log("Success!");
+        console.log("Best Solution Cost: " + bestSolutionCost);
+        console.log("Best Solution: " );
+        for (var i = 0; i < bestSolution.length; i++) {
+            console.log(bestSolution[i].name);
+        }
+    }
+}
+
+
 
 var findBestNeighboar = function(solution){
+    var max = Fact(solution.length-2)/(2*(Fact(solution.length-4)));
+    var conta = 0;
+    var bandera;
+    var lista = [];
+    var best = solution.slice();
+    var newSolution = undefined;
+    var firstSolution = solution.slice();
+    while(max>conta){
 
+        newSolution = createNeighbour(firstSolution);
+
+        bandera = checkRoad(newSolution);
+ 
+        if (bandera == true){
+            console.log("NEW");
+            for (var i = 0; i < newSolution.length; i++) {
+                console.log(newSolution[i].name);
+            }
+            lista.push(newSolution);
+        }
+
+        conta += 1;
+    }
+
+    if(lista.length > 0){
+        for (var i = 0; i < lista.length; i++) {
+            if(getTotalCost(lista[i]) < getTotalCost(best)){
+                best = lista[i].slice();
+            }
+        }
+        return best
+    }
+    else{
+        return solution;
+    }
+    
 };
 
 var callDFS = function(){
+    startTime = new Date().getTime();
     console.log("\n-------\n");
     for(var i=0; i<logicNetwork.length; i++) {
         if(logicNetwork[i].initial){
@@ -849,9 +847,13 @@ var callDFS = function(){
             }
         }
     }
+    endTime = new Date().getTime();
+    timeElapsed = endTime - startTime;
+    console.log("Time: " + timeElapsed/1000 + " seconds");
 };
 
 var callDLS = function(){
+    startTime = new Date().getTime();
     console.log("\n-------\n");
     var limit = document.getElementById("limit").value;
     if(limit){
@@ -870,10 +872,14 @@ var callDLS = function(){
                 }
             }
         }
+        endTime = new Date().getTime();
+        timeElapsed = endTime - startTime;
+        console.log("Time: " + timeElapsed/1000 + " seconds");
     }
 };
 
 var callIDS = function(){
+    startTime = new Date().getTime(); 
     console.log("\n-------\n");
     for(var i=0; i<logicNetwork.length; i++) {
         if(logicNetwork[i].initial) {
@@ -899,9 +905,13 @@ var callIDS = function(){
             }
         }
     }
+    endTime = new Date().getTime();
+    timeElapsed = endTime - startTime;
+    console.log("Time: " + timeElapsed/1000 + " seconds");
 };
 
 var callBFS = function(){
+    startTime = new Date().getTime(); 
     console.log("\n-------\n");
     for(var i=0; i<logicNetwork.length; i++) {
         if(logicNetwork[i].initial) {
@@ -913,9 +923,13 @@ var callBFS = function(){
             }
         }
     }
+    endTime = new Date().getTime();
+    timeElapsed = endTime - startTime;
+    console.log("Time: " + timeElapsed/1000 + " seconds");
 };
 
 var callUCS = function(){
+    startTime = new Date().getTime(); 
     console.log("\n-------\n");
     for(var i=0; i<logicNetwork.length; i++) {
         if(logicNetwork[i].initial) {
@@ -927,6 +941,9 @@ var callUCS = function(){
             }
         }
     }
+    endTime = new Date().getTime();
+    timeElapsed = endTime - startTime;
+    console.log("Time: " + timeElapsed/1000 + " seconds");
 };
 
 var callSA = function(){
@@ -957,6 +974,23 @@ var callBI = function(){
     }
 };
 
+var callTABU = function(){
+    console.log("\n-------\n");
+    for(var i=0; i<logicNetwork.length; i++) {
+        if(logicNetwork[i].initial) {
+            for(var j=0; j<logicNetwork.length; j++) {
+                if(logicNetwork[j].final) {
+                    TABU(logicNetwork, logicNetwork[i], logicNetwork[j]);
+                    clearAllVisites();
+                }
+            }
+        }
+    }
+};
+
+
+
 document.getElementById('files').addEventListener('change', loadGraphJSON, false);
 
 auto_graph(0);
+setStates();
