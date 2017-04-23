@@ -654,6 +654,72 @@ var Fact = function(num){
         return num * Fact( num - 1 ); 
 };
 
+var BestFS = function(graph, node1, goal){
+        var closeList = [];
+        var openList = [];
+        var cost;
+        openList.push(node1);
+        openList.push(0);
+        while(openList.length>0){
+
+            cost = openList.pop();
+            node = openList.pop();
+            console.log("Node: " + node.name);
+            if(node.id == goal.id){
+                console.log("Logro Logrado");
+                break;
+            }
+            else{
+                closeList.push(node);
+                for (i = graph.length-1; i > 0 ; i--) {      
+                     if(getEdge(node, graph[i]) && graph[i].id != node.id && avoidCycle(graph[i], closeList)){
+                        console.log(graph[i].name + " - " + cost);   
+                        cost = getEdgeCost(node, graph[i], closeList);
+                        openList.push(graph[i]);
+                        openList.push(cost);
+                     }
+                        
+                    
+                }
+                openList = sort(openList);
+            }
+
+        }
+    };
+
+var Astar = function(graph, node1, goal){
+        var closeList = [];
+        var openList = [];
+        var cost;
+        openList.push(node1);
+        openList.push(0);
+        while(openList.length>0){
+
+            cost = openList.pop();
+            node = openList.pop();
+            console.log("Node: " + node.name);
+            if(node.id == goal.id){
+                console.log("Logro Logrado");
+                break;
+            }
+            else{
+                closeList.push(node);
+                for (i = graph.length-1; i > 0 ; i--) {      
+                     if(getEdge(node, graph[i]) && graph[i].id != node.id && avoidCycle(graph[i], closeList)){
+                        cost2 = cost;
+                        cost = getEdgeCost(node, graph[i], closeList);
+                        openList.push(graph[i]);
+                        openList.push(cost + cost2);
+                     }
+                        
+                    console.log(graph[i].name + " - " + cost);   
+                }
+                openList = sort(openList);
+            }
+
+        }
+    };
+
 var createNeighbour = function(solution){
 
     var pos1 = randomNumber(solution.length-2,1);
@@ -1058,6 +1124,7 @@ var callSA = function(){
 };
 
 var callBI = function(){
+    startTime = new Date().getTime();
      console.log("\n-------\n");
     for(var i=0; i<logicNetwork.length; i++) {
         if(logicNetwork[i].initial) {
@@ -1069,6 +1136,10 @@ var callBI = function(){
             }
         }
     }
+
+    endTime = new Date().getTime();
+    timeElapsed = endTime - startTime;
+    console.log("Time: " + timeElapsed/1000 + " seconds");
 };
 
 var callTABU = function(){
@@ -1079,6 +1150,42 @@ var callTABU = function(){
             for(var j=0; j<logicNetwork.length; j++) {
                 if(logicNetwork[j].final) {
                     TABU(logicNetwork, logicNetwork[i], logicNetwork[j]);
+                    clearAllVisites();
+                }
+            }
+        }
+    }
+    endTime = new Date().getTime();
+    timeElapsed = endTime - startTime;
+    console.log("Time: " + timeElapsed/1000 + " seconds");
+};
+
+var callBestFS = function(){
+    startTime = new Date().getTime();
+    console.log("\n-------\n");
+    for(var i=0; i<logicNetwork.length; i++) {
+        if(logicNetwork[i].initial) {
+            for(var j=0; j<logicNetwork.length; j++) {
+                if(logicNetwork[j].final) {
+                    BestFS(logicNetwork, logicNetwork[i], logicNetwork[j]);
+                    clearAllVisites();
+                }
+            }
+        }
+    }
+    endTime = new Date().getTime();
+    timeElapsed = endTime - startTime;
+    console.log("Time: " + timeElapsed/1000 + " seconds");
+};
+
+var callAstar = function(){
+    startTime = new Date().getTime();
+    console.log("\n-------\n");
+    for(var i=0; i<logicNetwork.length; i++) {
+        if(logicNetwork[i].initial) {
+            for(var j=0; j<logicNetwork.length; j++) {
+                if(logicNetwork[j].final) {
+                    Astar(logicNetwork, logicNetwork[i], logicNetwork[j]);
                     clearAllVisites();
                 }
             }
@@ -1113,6 +1220,12 @@ var search = function(value) {
     }
     else if(value=="TABU"){
         callTABU();
+    }
+    else if(value=="BestFS"){
+        callBestFS();
+    }
+    else if(value=="Astar"){
+        callAstar();
     }
 };
 
