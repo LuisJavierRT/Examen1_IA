@@ -75,6 +75,7 @@ var auto_graph = function(number){
     var listaNodes = [];
     var listaEdges = [];
     var n = randomNumber(number,1);
+    //var n= 178633;
     console.log("Random: " + n);
     for (var i = 1; i <= n; i++) {
         var node = {
@@ -120,7 +121,7 @@ var auto_graph = function(number){
         edges: edges
     };
     // initialize your network!
-    if (n<10000){
+    if (n<=100){
         network = new vis.Network(container, data, options);
     
         network.on("select", function (params) {
@@ -131,8 +132,8 @@ var auto_graph = function(number){
 };
 
 var setStates = function() {
-    logicNetwork[0].initial = true;
-    logicNetwork[logicNetwork.length-1].final = true;
+    logicNetwork[90].initial = true;
+    logicNetwork[logicNetwork.length-90].final = true;
 };
 
 
@@ -408,12 +409,12 @@ var DLS = function(graph, node1, goal, limit) {
     stack.push(node1);
     depth_stack.push(0);
     while(stack.length > 0) {
-        node = stack.pop();
         depth = depth_stack.pop();
+        node = stack.pop();
         closeStack.push(node);
-        console.log("->" + node.name);
-        console.log("Depth: " + depth);
-        console.log(closeStack);
+        //console.log("->" + node.name);
+        //console.log("Depth: " + depth);
+        //console.log(closeStack);
         if(node.id == goal.id){
             size = sizeof(stack) + sizeof(depth_stack) + sizeof(closeStack) + sizeof(node) + sizeof(depth);
             console.log("Size: " + size);
@@ -458,14 +459,13 @@ var BFS = function(graph, node1, goal) {
     while(queue.length > 0) {
         node = queue.shift();
         closeStack.push(node);
-        console.log("->" + node.name);
+        //console.log("->" + node.name);
         if(node.id == goal.id){
             succes = "Exito";
             break;
         }
         for(var i=0; i<graph.length; i++){
             if(getEdgeTest(node, graph[i], closeStack)){
-                console.log(graph[i]);
                 queue.push(graph[i]);
             }
         }
@@ -1118,7 +1118,7 @@ var callIDS = function(){
                         console.log("\n\n Again");
                         status = DLS(logicNetwork, logicNetwork[i], logicNetwork[j], depth);
                         clearAllVisites();
-                        if(status || depth.length == logicNetwork.length)
+                        if(status == true || depth == logicNetwork.length)
                             break;
                         depth+=1;
                     }
