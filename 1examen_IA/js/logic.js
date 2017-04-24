@@ -120,12 +120,14 @@ var auto_graph = function(number){
         edges: edges
     };
     // initialize your network!
-    network = new vis.Network(container, data, options);
-
-    network.on("select", function (params) {
-        idNode = params.nodes[0];
-        idEdges = params.edges;
-    }); 
+    if (n<10000){
+        network = new vis.Network(container, data, options);
+    
+        network.on("select", function (params) {
+            idNode = params.nodes[0];
+            idEdges = params.edges;
+        }); 
+    }
 };
 
 var setStates = function() {
