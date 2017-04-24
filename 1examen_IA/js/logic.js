@@ -613,6 +613,7 @@ var BIDI = function(graph, node1, goal) {
     var nodeB;
     var conta = 0;
     var succes = "Fracaso";
+    var size = 0;
     queue1.push(node1);
     queue2.push(goal);
     while(queue1.length > 0 && queue2.length > 0) {
@@ -644,6 +645,8 @@ var BIDI = function(graph, node1, goal) {
     for (var i = 0; i<caminoA.length; i++){
         console.log("->"+caminoA[i]);
     }
+    size = sizeof(queue1) + sizeof(queue2) + sizeof(caminoA) + sizeof(caminoB) + sizeof(nodeA) + sizeof(nodeB) + sizeof(conta);
+    console.log("Size: " + size);
     console.log(succes);
 };
 
@@ -658,6 +661,7 @@ var BestFS = function(graph, node1, goal){
         var closeList = [];
         var openList = [];
         var cost;
+        var size;
         openList.push(node1);
         openList.push(0);
         while(openList.length>0){
@@ -666,6 +670,7 @@ var BestFS = function(graph, node1, goal){
             node = openList.pop();
             console.log("Node: " + node.name);
             if(node.id == goal.id){
+                size = sizeof(node);
                 console.log("Logro Logrado");
                 break;
             }
@@ -673,10 +678,15 @@ var BestFS = function(graph, node1, goal){
                 closeList.push(node);
                 for (i = graph.length-1; i > 0 ; i--) {      
                      if(getEdge(node, graph[i]) && graph[i].id != node.id && avoidCycle(graph[i], closeList)){
-                        console.log(graph[i].name + " - " + cost);   
+                         
                         cost = getEdgeCost(node, graph[i], closeList);
-                        openList.push(graph[i]);
-                        openList.push(cost);
+                        
+                        if(cost){
+                            console.log(graph[i].name + " - " + cost);
+                            openList.push(graph[i]);
+                            openList.push(cost);    
+                        }
+                        
                      }
                         
                     
@@ -685,12 +695,16 @@ var BestFS = function(graph, node1, goal){
             }
 
         }
+        size = size + sizeof(closeList) + sizeof(openList) + sizeof(cost);
+        console.log("Size: " + size);
     };
 
 var Astar = function(graph, node1, goal){
         var closeList = [];
         var openList = [];
         var cost;
+        var size;
+        var cost2;
         openList.push(node1);
         openList.push(0);
         while(openList.length>0){
@@ -699,8 +713,9 @@ var Astar = function(graph, node1, goal){
             node = openList.pop();
             console.log("Node: " + node.name);
             if(node.id == goal.id){
+                size = size + sizeof(node);
                 console.log("Logro Logrado");
-                break;
+                return;
             }
             else{
                 closeList.push(node);
@@ -708,16 +723,67 @@ var Astar = function(graph, node1, goal){
                      if(getEdge(node, graph[i]) && graph[i].id != node.id && avoidCycle(graph[i], closeList)){
                         cost2 = cost;
                         cost = getEdgeCost(node, graph[i], closeList);
-                        openList.push(graph[i]);
-                        openList.push(cost + cost2);
+                        if(cost){
+                            console.log(graph[i].name + " - " + cost);
+                            openList.push(graph[i]);
+                            openList.push(cost + cost2);    
+                        }
                      }
                         
-                    console.log(graph[i].name + " - " + cost);   
+                      
+                }
+                size = size + sizeof(cost2);
+                openList = sort(openList);
+            }
+
+        }
+        size = size + sizeof(closeList) + sizeof(openList) + sizeof(cost);
+        console.log("Size: " + size);
+    };
+
+var HillClimbing = function(graph, node1, goal){
+        var closeList = [];
+        var openList = [];
+        var cost;
+        var size = 0;
+        openList.push(node1);
+        openList.push(0);
+        while(openList.length>0){
+
+            cost = openList.pop();
+            node = openList.pop();
+
+            while(openList.length>0){
+                openList.pop();
+                nodeToClose = openList.pop();
+                closeList.push(nodeToClose);
+            }
+
+            console.log("Node: " + node.name);
+            if(node.id == goal.id){
+                size = size + sizeof(node);
+                console.log("Logro Logrado");
+                break;
+            }
+            else{
+                closeList.push(node);
+                for (i = graph.length-1; i > 0 ; i--) {      
+                     if(getEdge(node, graph[i]) && graph[i].id != node.id && avoidCycle(graph[i], closeList)){
+                          
+                        cost = getEdgeCost(node, graph[i], closeList);
+                        if(cost){
+                            console.log(graph[i].name + " - " + cost); 
+                            openList.push(graph[i]);
+                            openList.push(cost);    
+                        }
+                     }
                 }
                 openList = sort(openList);
             }
 
         }
+        size = size + sizeof(closeList) + sizeof(openList) + sizeof(cost);
+        console.log("Size: " + size);
     };
 
 var createNeighbour = function(solution){
@@ -1196,6 +1262,24 @@ var callAstar = function(){
     console.log("Time: " + timeElapsed/1000 + " seconds");
 };
 
+var callHillClimbing = function(){
+    startTime = new Date().getTime();
+    console.log("\n-------\n");
+    for(var i=0; i<logicNetwork.length; i++) {
+        if(logicNetwork[i].initial) {
+            for(var j=0; j<logicNetwork.length; j++) {
+                if(logicNetwork[j].final) {
+                    HillClimbing(logicNetwork, logicNetwork[i], logicNetwork[j]);
+                    clearAllVisites();
+                }
+            }
+        }
+    }
+    endTime = new Date().getTime();
+    timeElapsed = endTime - startTime;
+    console.log("Time: " + timeElapsed/1000 + " seconds");
+};
+
 var search = function(value) {
     if(value=="DFS"){
         callDFS();
@@ -1227,6 +1311,8 @@ var search = function(value) {
     else if(value=="Astar"){
         callAstar();
     }
+    else if(value=="HillClimbing")
+        callHillClimbing();
 };
 
 var grafo = function(value) {
