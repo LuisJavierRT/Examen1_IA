@@ -75,6 +75,7 @@ var auto_graph = function(number){
     var listaNodes = [];
     var listaEdges = [];
     var n = randomNumber(number,1);
+    console.log("Random: " + n);
     for (var i = 1; i <= n; i++) {
         var node = {
             id: i,
@@ -700,91 +701,90 @@ var BestFS = function(graph, node1, goal){
     };
 
 var Astar = function(graph, node1, goal){
-        var closeList = [];
-        var openList = [];
-        var cost;
-        var size;
-        var cost2;
-        openList.push(node1);
-        openList.push(0);
-        while(openList.length>0){
+    var closeList = [];
+    var openList = [];
+    var cost;
+    var size;
+    var cost2;
+    openList.push(node1);
+    openList.push(0);
+    while(openList.length>0){
 
-            cost = openList.pop();
-            node = openList.pop();
-            console.log("Node: " + node.name);
-            if(node.id == goal.id){
-                size = size + sizeof(node);
-                console.log("Logro Logrado");
-                return;
-            }
-            else{
-                closeList.push(node);
-                for (i = graph.length-1; i > 0 ; i--) {      
-                     if(getEdge(node, graph[i]) && graph[i].id != node.id && avoidCycle(graph[i], closeList)){
-                        cost2 = cost;
-                        cost = getEdgeCost(node, graph[i], closeList);
-                        if(cost){
-                            console.log(graph[i].name + " - " + cost);
-                            openList.push(graph[i]);
-                            openList.push(cost + cost2);    
-                        }
-                     }
-                        
-                      
-                }
-                size = size + sizeof(cost2);
-                openList = sort(openList);
-            }
-
+        cost = openList.pop();
+        node = openList.pop();
+        console.log("Node: " + node.name);
+        if(node.id == goal.id){
+            size = size + sizeof(node);
+            console.log("Logro Logrado");
+            return;
         }
-        size = size + sizeof(closeList) + sizeof(openList) + sizeof(cost);
-        console.log("Size: " + size);
-    };
+        else{
+            closeList.push(node);
+            for (i = graph.length-1; i > 0 ; i--) {      
+                    if(getEdge(node, graph[i]) && graph[i].id != node.id && avoidCycle(graph[i], closeList)){
+                    cost2 = cost;
+                    cost = getEdgeCost(node, graph[i], closeList);
+                    if(cost){
+                        console.log(graph[i].name + " - " + cost);
+                        openList.push(graph[i]);
+                        openList.push(cost + cost2);    
+                    }
+                    }
+                    
+                    
+            }
+            size = size + sizeof(cost2);
+            openList = sort(openList);
+        }
+
+    }
+    size = size + sizeof(closeList) + sizeof(openList) + sizeof(cost);
+    console.log("Size: " + size);
+};
 
 var HillClimbing = function(graph, node1, goal){
-        var closeList = [];
-        var openList = [];
-        var cost;
-        var size = 0;
-        openList.push(node1);
-        openList.push(0);
+    var closeList = [];
+    var openList = [];
+    var cost;
+    var size = 0;
+    openList.push(node1);
+    openList.push(0);
+    while(openList.length>0){
+
+        cost = openList.pop();
+        node = openList.pop();
+
         while(openList.length>0){
-
-            cost = openList.pop();
-            node = openList.pop();
-
-            while(openList.length>0){
-                openList.pop();
-                nodeToClose = openList.pop();
-                closeList.push(nodeToClose);
-            }
-
-            console.log("Node: " + node.name);
-            if(node.id == goal.id){
-                size = size + sizeof(node);
-                console.log("Logro Logrado");
-                break;
-            }
-            else{
-                closeList.push(node);
-                for (i = graph.length-1; i > 0 ; i--) {      
-                     if(getEdge(node, graph[i]) && graph[i].id != node.id && avoidCycle(graph[i], closeList)){
-                          
-                        cost = getEdgeCost(node, graph[i], closeList);
-                        if(cost){
-                            console.log(graph[i].name + " - " + cost); 
-                            openList.push(graph[i]);
-                            openList.push(cost);    
-                        }
-                     }
-                }
-                openList = sort(openList);
-            }
-
+            openList.pop();
+            nodeToClose = openList.pop();
+            closeList.push(nodeToClose);
         }
-        size = size + sizeof(closeList) + sizeof(openList) + sizeof(cost);
-        console.log("Size: " + size);
-    };
+
+        console.log("Node: " + node.name);
+        if(node.id == goal.id){
+            size = size + sizeof(node);
+            console.log("Logro Logrado");
+            break;
+        }
+        else{
+            closeList.push(node);
+            for (i = graph.length-1; i > 0 ; i--) {      
+                if(getEdge(node, graph[i]) && graph[i].id != node.id && avoidCycle(graph[i], closeList)){
+                    cost = getEdgeCost(node, graph[i], closeList);
+                    if(cost){
+                        console.log(graph[i].name + " - " + cost); 
+                        openList.push(graph[i]);
+                        openList.push(cost);    
+                    }
+                }
+            }
+            openList = sort(openList);
+        }
+
+    }
+    size = size + sizeof(closeList) + sizeof(openList) + sizeof(cost);
+    console.log("Size: " + size);
+};
 
 var createNeighbour = function(solution){
 
