@@ -1,4 +1,5 @@
 var abc = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","ñ","o","p","q","r","s","t","u","v","w","x","y","z"];
+var names = [];
 var idNode = undefined;
 var idEdges = [];
 var data = {};
@@ -70,16 +71,45 @@ var options = {
     }
 }; 
 
+var generateNames = function(nodes){
+    var contador = 0;
+    var c = 0;
+    var numero = 0;
+    var x = ""; 
+    while(contador < nodes){
+        if(c == 27){
+            c = 0;
+            numero += 1;
+        }
+        else if(contador < 27){
+            x = abc[c];
+            names.push(x);
+            c += 1;
+            contador += 1;
+        }
+        else{
+            x = abc[c] + numero.toString();
+            names.push(x);
+            c += 1;
+            contador += 1;
+
+        }
+    }
+    console.log(names);
+}
+
 var auto_graph = function(number){
+    names = [];
     logicNetwork = []
     var listaNodes = [];
     var listaEdges = [];
     var n = randomNumber(number,1);
+    generateNames(n);
     console.log("Random: " + n);
     for (var i = 1; i <= n; i++) {
         var node = {
             id: i,
-            label: abc[i-1],
+            label: names[i-1],
             initial: false,
             final: false,
             visited: false
@@ -107,7 +137,7 @@ var auto_graph = function(number){
             listaEdges.push(edge);
             listaEd.push({to: uniques[j], weigth: val});
         }
-        logicNetwork.push({id: i, name: abc[i-1], visited: false, final: false, initial: false, edges: listaEd});
+        logicNetwork.push({id: i, name: names[i-1], visited: false, final: false, initial: false, edges: listaEd});
     }
     console.log(logicNetwork);
     var edges = new vis.DataSet(listaEdges);
@@ -665,6 +695,7 @@ var BestFS = function(graph, node1, goal){
         var openList = [];
         var cost;
         var size;
+        var success = "Fracaso";
         openList.push(node1);
         openList.push(0);
         while(openList.length>0){
@@ -674,7 +705,7 @@ var BestFS = function(graph, node1, goal){
             console.log("Node: " + node.name);
             if(node.id == goal.id){
                 size = sizeof(node);
-                console.log("Logro Logrado");
+                success = "Éxito";
                 break;
             }
             else{
@@ -700,6 +731,7 @@ var BestFS = function(graph, node1, goal){
         }
         size = size + sizeof(closeList) + sizeof(openList) + sizeof(cost);
         console.log("Size: " + size);
+        console.log(success);
     };
 
 var Astar = function(graph, node1, goal){
@@ -708,6 +740,7 @@ var Astar = function(graph, node1, goal){
     var cost;
     var size;
     var cost2;
+    var success = "Fracaso"; 
     openList.push(node1);
     openList.push(0);
     while(openList.length>0){
@@ -717,8 +750,8 @@ var Astar = function(graph, node1, goal){
         console.log("Node: " + node.name);
         if(node.id == goal.id){
             size = size + sizeof(node);
-            console.log("Logro Logrado");
-            return;
+            success = "Éxito";
+            break;
         }
         else{
             closeList.push(node);
@@ -742,6 +775,7 @@ var Astar = function(graph, node1, goal){
     }
     size = size + sizeof(closeList) + sizeof(openList) + sizeof(cost);
     console.log("Size: " + size);
+    console.log(success);
 };
 
 var HillClimbing = function(graph, node1, goal){
@@ -749,6 +783,7 @@ var HillClimbing = function(graph, node1, goal){
     var openList = [];
     var cost;
     var size = 0;
+    var success = "Fracaso";
     openList.push(node1);
     openList.push(0);
     while(openList.length>0){
@@ -765,7 +800,7 @@ var HillClimbing = function(graph, node1, goal){
         console.log("Node: " + node.name);
         if(node.id == goal.id){
             size = size + sizeof(node);
-            console.log("Logro Logrado");
+            success = "Éxito";
             break;
         }
         else{
@@ -786,6 +821,7 @@ var HillClimbing = function(graph, node1, goal){
     }
     size = size + sizeof(closeList) + sizeof(openList) + sizeof(cost);
     console.log("Size: " + size);
+    console.log(success);
 };
 
 var createNeighbour = function(solution){
