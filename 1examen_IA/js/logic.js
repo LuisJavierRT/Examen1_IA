@@ -95,7 +95,6 @@ var generateNames = function(nodes){
 
         }
     }
-    console.log(names);
 }
 
 var auto_graph = function(number){
@@ -161,8 +160,8 @@ var auto_graph = function(number){
 };
 
 var setStates = function() {
-    logicNetwork[1000].initial = true;
-    logicNetwork[logicNetwork.length-2000].final = true;
+    logicNetwork[1].initial = true;
+    logicNetwork[logicNetwork.length-2].final = true;
 };
 
 
@@ -423,9 +422,9 @@ var DFS = function(graph, node1, goal) {
         }
     }
     size = sizeof(stack) + sizeof(closeStack) + sizeof(node);
-    console.log("Size: " + size);
-    console.log(succes);
-    result = true;
+    //console.log("Size: " + size);
+    //console.log(succes);
+    printData(succes, size);
 };
 
 var DLS = function(graph, node1, goal, limit) {
@@ -446,7 +445,8 @@ var DLS = function(graph, node1, goal, limit) {
         //console.log(closeStack);
         if(node.id == goal.id){
             size = sizeof(stack) + sizeof(depth_stack) + sizeof(closeStack) + sizeof(node) + sizeof(depth);
-            console.log("Size: " + size);
+            document.getElementById("size").value = size;
+            //console.log("Size: " + size);
             return true;
         }
         if(depth < limit) {
@@ -500,8 +500,9 @@ var BFS = function(graph, node1, goal) {
         }
     }
     size = sizeof(queue) + sizeof(closeStack) + sizeof(node);
-    console.log("Size: " + size);
-    console.log(succes);
+    //console.log("Size: " + size);
+    //console.log(succes);
+    printData(succes, size);
 };
 
 var UCS = function(graph, node1, goal) {
@@ -537,8 +538,9 @@ var UCS = function(graph, node1, goal) {
         }
     }
     size = sizeof(queue) + sizeof(closeStack) + sizeof(cost) + sizeof(node);
-    console.log("Size: " + size);
-    console.log(succes);
+    //console.log("Size: " + size);
+    //console.log(succes);
+    printData(succes, size);
 };
 
 var change = function(list, indexOne, indexTwo, indexThree,indexFour){
@@ -571,10 +573,12 @@ var SA = function(graph, node1, goal){
     var size = 0;
     findSolution(graph,node1,goal);
     if(solutionFinal.length == 0){
-        console.log("Failure, no route");
+        //console.log("Failure, no route");
+        printData("Fracaso", size);
     }
     else if(solutionFinal[solutionFinal.length-1].id != goal.id){
-        console.log("Failure, no route");
+        //console.log("Failure, no route");
+        printData("Fracaso", size);
     }
     else{
         var currentSolution = solutionFinal.slice();
@@ -622,7 +626,7 @@ var SA = function(graph, node1, goal){
 
         }
         //if (bandera == true || bandera == false && max == iterations){
-            console.log("Success!");
+            //console.log("Success!");
             console.log("Best Solution Cost: " + bestSolutionCost);
             console.log("Best Solution: " );
             for (var i = 0; i < bestSolution.length; i++) {
@@ -632,7 +636,8 @@ var SA = function(graph, node1, goal){
                 }
             }
             size = sizeof(currentSolution) + sizeof(bestSolution) + sizeof(newSolution) + sizeof(bestSolutionCost) + sizeof(currentSolutionCost) + sizeof(newSolutionCost);
-            console.log("Size: " + size);
+            //console.log("Size: " + size);
+            printData("Exito", size);
        // }
     }
 }
@@ -679,8 +684,9 @@ var BIDI = function(graph, node1, goal) {
         console.log("->"+caminoA[i]);
     }
     size = sizeof(queue1) + sizeof(queue2) + sizeof(caminoA) + sizeof(caminoB) + sizeof(nodeA) + sizeof(nodeB) + sizeof(conta);
-    console.log("Size: " + size);
-    console.log(succes);
+    //console.log("Size: " + size);
+    //console.log(succes);
+    printData(succes, size);
 };
 
 var Fact = function(num){
@@ -694,7 +700,7 @@ var BestFS = function(graph, node1, goal){
         var closeList = [];
         var openList = [];
         var cost;
-        var size;
+        var size = 0;
         var success = "Fracaso";
         openList.push(node1);
         openList.push(0);
@@ -704,7 +710,7 @@ var BestFS = function(graph, node1, goal){
             node = openList.pop();
             console.log("Node: " + node.name);
             if(node.id == goal.id){
-                size = sizeof(node);
+                size = size + sizeof(node);
                 success = "Éxito";
                 break;
             }
@@ -730,15 +736,16 @@ var BestFS = function(graph, node1, goal){
 
         }
         size = size + sizeof(closeList) + sizeof(openList) + sizeof(cost);
-        console.log("Size: " + size);
-        console.log(success);
+        //console.log("Size: " + size);
+        //console.log(success);
+        printData(success, size);
     };
 
 var Astar = function(graph, node1, goal){
     var closeList = [];
     var openList = [];
     var cost;
-    var size;
+    var size = 0;
     var cost2;
     var success = "Fracaso"; 
     openList.push(node1);
@@ -774,8 +781,9 @@ var Astar = function(graph, node1, goal){
 
     }
     size = size + sizeof(closeList) + sizeof(openList) + sizeof(cost);
-    console.log("Size: " + size);
-    console.log(success);
+    //console.log("Size: " + size);
+    //console.log(success);
+    printData(success, size);
 };
 
 var HillClimbing = function(graph, node1, goal){
@@ -820,8 +828,9 @@ var HillClimbing = function(graph, node1, goal){
 
     }
     size = size + sizeof(closeList) + sizeof(openList) + sizeof(cost);
-    console.log("Size: " + size);
-    console.log(success);
+    //console.log("Size: " + size);
+    //console.log(success);
+    printData(success, size);
 };
 
 var createNeighbour = function(solution){
@@ -957,12 +966,13 @@ var tabuList = [];
 var TABU = function(graph, node1, goal){
     var maximum_criteria = 100;
     var contador = 0;
+    var size = 0;
     findSolution(graph,node1,goal);
     if(solutionFinal.length == 0){
-        console.log("Failure, no route");
+        printData("Fracaso", size);
     }
     else if(solutionFinal[solutionFinal.length-1].id != goal.id){
-        console.log("Failure, no route");
+        printData("Fracaso", size);
     }
     else{ 
         var currentSolution = solutionFinal.slice();
@@ -988,7 +998,7 @@ var TABU = function(graph, node1, goal){
             contador += 1;
         }
 
-        console.log("Success!");
+        //console.log("Success!");
         console.log("Best Solution Cost: " + bestSolutionCost);
         console.log("Best Solution: " );
         for (var i = 0; i < bestSolution.length; i++) {
@@ -997,7 +1007,8 @@ var TABU = function(graph, node1, goal){
             }
         }
         size = sizeof(currentSolution) + sizeof(bestSolution) + sizeof(newSolution) + sizeof(bestSolutionCost)  + sizeof(newSolutionCost);
-        console.log("Size: " + size);
+        //console.log("Size: " + size);
+        printData("Exito", size);
     }
 }
 
@@ -1112,7 +1123,8 @@ var callDFS = function(){
     }
     endTime = new Date().getTime();
     timeElapsed = endTime - startTime;
-    console.log("Time: " + timeElapsed/1000 + " seconds");
+    document.getElementById("time").value = timeElapsed/1000 + " seconds";
+    //console.log("Time: " + timeElapsed/1000 + " seconds");
 };
 
 var callDLS = function(){
@@ -1125,10 +1137,12 @@ var callDLS = function(){
                 for(var j=0; j<logicNetwork.length; j++) {
                     if(logicNetwork[j].final){
                         if(DLS(logicNetwork, logicNetwork[i], logicNetwork[j], parseInt(limit))){
-                            console.log("Exito");
+                            //console.log("Exito");
+                            document.getElementById("status").value = "Exito";
                         }
                         else{
-                            console.log("Fracaso");
+                            //console.log("Fracaso");
+                            document.getElementById("status").value = "Fracaso";
                         }
                         clearAllVisites();
                     }
@@ -1137,7 +1151,8 @@ var callDLS = function(){
         }
         endTime = new Date().getTime();
         timeElapsed = endTime - startTime;
-        console.log("Time: " + timeElapsed/1000 + " seconds");
+        //console.log("Time: " + timeElapsed/1000 + " seconds");
+        document.getElementById("time").value = timeElapsed/1000 + " seconds";
     }
 };
 
@@ -1170,7 +1185,8 @@ var callIDS = function(){
     }
     endTime = new Date().getTime();
     timeElapsed = endTime - startTime;
-    console.log("Time: " + timeElapsed/1000 + " seconds");
+    //console.log("Time: " + timeElapsed/1000 + " seconds");
+    document.getElementById("time").value = timeElapsed/1000 + " seconds";
 };
 
 var callBFS = function(){
@@ -1188,7 +1204,8 @@ var callBFS = function(){
     }
     endTime = new Date().getTime();
     timeElapsed = endTime - startTime;
-    console.log("Time: " + timeElapsed/1000 + " seconds");
+    //console.log("Time: " + timeElapsed/1000 + " seconds");
+    document.getElementById("time").value = timeElapsed/1000 + " seconds";
 };
 
 var callUCS = function(){
@@ -1206,7 +1223,8 @@ var callUCS = function(){
     }
     endTime = new Date().getTime();
     timeElapsed = endTime - startTime;
-    console.log("Time: " + timeElapsed/1000 + " seconds");
+    //console.log("Time: " + timeElapsed/1000 + " seconds");
+    document.getElementById("time").value = timeElapsed/1000 + " seconds";
 };
 
 var callSA = function(){
@@ -1224,7 +1242,8 @@ var callSA = function(){
     }
     endTime = new Date().getTime();
     timeElapsed = endTime - startTime;
-    console.log("Time: " + timeElapsed/1000 + " seconds");
+    //console.log("Time: " + timeElapsed/1000 + " seconds");
+    document.getElementById("time").value = timeElapsed/1000 + " seconds";
 };
 
 var callBI = function(){
@@ -1243,7 +1262,8 @@ var callBI = function(){
 
     endTime = new Date().getTime();
     timeElapsed = endTime - startTime;
-    console.log("Time: " + timeElapsed/1000 + " seconds");
+    //console.log("Time: " + timeElapsed/1000 + " seconds");
+    document.getElementById("time").value = timeElapsed/1000 + " seconds";
 };
 
 var callTABU = function(){
@@ -1261,7 +1281,8 @@ var callTABU = function(){
     }
     endTime = new Date().getTime();
     timeElapsed = endTime - startTime;
-    console.log("Time: " + timeElapsed/1000 + " seconds");
+    //console.log("Time: " + timeElapsed/1000 + " seconds");
+    document.getElementById("time").value = timeElapsed/1000 + " seconds";
 };
 
 var callBestFS = function(){
@@ -1279,7 +1300,8 @@ var callBestFS = function(){
     }
     endTime = new Date().getTime();
     timeElapsed = endTime - startTime;
-    console.log("Time: " + timeElapsed/1000 + " seconds");
+    //console.log("Time: " + timeElapsed/1000 + " seconds");
+    document.getElementById("time").value = timeElapsed/1000 + " seconds";
 };
 
 var callAstar = function(){
@@ -1297,7 +1319,8 @@ var callAstar = function(){
     }
     endTime = new Date().getTime();
     timeElapsed = endTime - startTime;
-    console.log("Time: " + timeElapsed/1000 + " seconds");
+    //console.log("Time: " + timeElapsed/1000 + " seconds");
+    document.getElementById("time").value = timeElapsed/1000 + " seconds";
 };
 
 var callHillClimbing = function(){
@@ -1315,7 +1338,13 @@ var callHillClimbing = function(){
     }
     endTime = new Date().getTime();
     timeElapsed = endTime - startTime;
-    console.log("Time: " + timeElapsed/1000 + " seconds");
+    //console.log("Time: " + timeElapsed/1000 + " seconds");
+    document.getElementById("time").value = timeElapsed/1000 + " seconds";
+};
+
+var printData = function(status, size) {
+    document.getElementById("status").value = status;
+    document.getElementById("size").value = size;
 };
 
 var search = function(value) {
@@ -1366,4 +1395,3 @@ var grafo = function(value) {
 
 document.getElementById('files').addEventListener('change', loadGraphJSON, false);
 auto_graph(0);
-setStates();
