@@ -75,7 +75,6 @@ var auto_graph = function(number){
     var listaNodes = [];
     var listaEdges = [];
     var n = randomNumber(number,1);
-    //var n= 178633;
     console.log("Random: " + n);
     for (var i = 1; i <= n; i++) {
         var node = {
@@ -132,8 +131,8 @@ var auto_graph = function(number){
 };
 
 var setStates = function() {
-    logicNetwork[90].initial = true;
-    logicNetwork[logicNetwork.length-90].final = true;
+    logicNetwork[1000].initial = true;
+    logicNetwork[logicNetwork.length-2000].final = true;
 };
 
 
@@ -382,7 +381,7 @@ var DFS = function(graph, node1, goal) {
     while(stack.length > 0) {
         node = stack.pop();
         closeStack.push(node);
-        //console.log("->" + node.name);
+        console.log("->" + node.name);
         if(node.id == goal.id){
             succes = "Exito";
             break;
@@ -412,7 +411,7 @@ var DLS = function(graph, node1, goal, limit) {
         depth = depth_stack.pop();
         node = stack.pop();
         closeStack.push(node);
-        //console.log("->" + node.name);
+        console.log("->" + node.name);
         //console.log("Depth: " + depth);
         //console.log(closeStack);
         if(node.id == goal.id){
@@ -459,7 +458,7 @@ var BFS = function(graph, node1, goal) {
     while(queue.length > 0) {
         node = queue.shift();
         closeStack.push(node);
-        //console.log("->" + node.name);
+        console.log("->" + node.name);
         if(node.id == goal.id){
             succes = "Exito";
             break;
@@ -486,6 +485,7 @@ var UCS = function(graph, node1, goal) {
         cost = queue.pop();
         node = queue.pop();
         closeStack.push(node);
+        console.log("-> " + node.name);
         if(node.id == goal.id){
             console.log("Cost: " + cost);
             succes = "Exito";
@@ -591,7 +591,7 @@ var SA = function(graph, node1, goal){
             temp *= 1 - coolingRate;
 
         }
-        if (bandera == true || bandera == false && max == iterations){
+        //if (bandera == true || bandera == false && max == iterations){
             console.log("Success!");
             console.log("Best Solution Cost: " + bestSolutionCost);
             console.log("Best Solution: " );
@@ -603,7 +603,7 @@ var SA = function(graph, node1, goal){
             }
             size = sizeof(currentSolution) + sizeof(bestSolution) + sizeof(newSolution) + sizeof(bestSolutionCost) + sizeof(currentSolutionCost) + sizeof(newSolutionCost);
             console.log("Size: " + size);
-        }
+       // }
     }
 }
 
